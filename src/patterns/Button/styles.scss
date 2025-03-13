@@ -1,0 +1,15 @@
+@use 'sass:color';
+
+.btn {
+    background: #ff3864;
+    color: white;
+    padding: 4px 8px;
+    text-decoration: none;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 500;
+
+    &:hover {
+        background: color.adjust(#ff3864, $lightness: -20%);
+    }
+}

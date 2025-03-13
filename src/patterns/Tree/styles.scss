@@ -1,0 +1,85 @@
+$line: #2de2e6;
+
+.list {
+    padding-left: 12px;
+    position: relative;
+
+    &--tree {
+        &::before {
+            border-right: dotted $line 1px;
+            bottom:0; 
+            content:""; 
+            height: auto;
+            left: 0; 
+            margin: auto;
+            position: absolute;
+            top: 0; 
+        }
+    }
+
+    &--nested {
+        padding-left: 24px;
+        &::before {
+            left: 12px;
+        }
+    }
+
+    &__item {
+        list-style: none;
+        margin-bottom: 16px;
+        position: relative;
+
+        &--connector {
+            padding-left: 4px;
+            &::before {
+                background-image: radial-gradient(ellipse, $line 1px, $line 1px, transparent 1px);
+                background-position: 0px 0;
+                background-repeat: repeat-x;
+                background-size: 3px 1px;
+                content: "";
+                height: 1px;
+                left: -12px;
+                position: absolute;
+                top: 10px;
+                width: 12px;
+            }
+        }
+
+        &:first-of-type {
+            border-top: 6px solid transparent;
+        }
+    }
+
+    .item {
+        &__title {
+            font-size: 14px;
+            font-weight: 200;
+        }
+    }
+
+    &__expandable {
+        appearance: none;
+        background: transparent;
+        border: 1px solid #2de2e6;
+        cursor: pointer;
+        height: 16px;
+        margin-right: 4px;
+        position: relative;
+        width: 16px;
+
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        &::before {
+            border-radius: 4px;
+            color: $line;
+            content: "-";
+        }
+
+        &--collapsed {
+            &::before {
+                content: "+";
+            }
+        }
+    }
+}
