@@ -32,7 +32,7 @@ export const Modal: ParentComponent<Props> = (props) => {
    */
   const close = () => {
     modalRef.close();
-    setIsOpen(true);
+    setIsOpen(false);
   };
 
   onMount(() => {
