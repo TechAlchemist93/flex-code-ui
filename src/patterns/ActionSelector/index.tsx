@@ -1,4 +1,4 @@
-import { Component, For, createSignal, createEffect } from "solid-js";
+import { Component, For, createSignal, createEffect, onMount } from "solid-js";
 import { Modal, type ModalRef } from "../Modal";
 import "./styles.scss";
 
@@ -25,6 +25,12 @@ export const ActionSelector: Component<ActionSelectorProps> = (props) => {
     props.onSelect(action);
     props.onClose();
   };
+
+  onMount(() => {
+    if (props.isOpen) {
+      modalRef?.open();
+    }
+  });
 
   createEffect(() => {
     if (props.isOpen) {

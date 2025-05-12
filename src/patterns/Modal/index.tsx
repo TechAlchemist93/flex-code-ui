@@ -51,20 +51,18 @@ export const Modal: ParentComponent<Props> = (props) => {
   });
 
   return (
-    <Show when={isOpen()}>
-      <Portal>
-        <dialog 
-          ref={modalRef} 
-          class="modal"
-          onClick={(e) => {
-            if (e.target === modalRef) {
-              close();
-            }
-          }}
-        >
-          {props.children}
-        </dialog>
-      </Portal>
-    </Show>
+    <Portal>
+      <dialog 
+        ref={modalRef} 
+        class="modal"
+        onClick={(e) => {
+          if (e.target === modalRef) {
+            close();
+          }
+        }}
+      >
+        {props.children}
+      </dialog>
+    </Portal>
   );
 };

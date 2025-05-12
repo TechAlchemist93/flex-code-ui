@@ -1,13 +1,18 @@
 .modal {
   padding: 0;
-  border: none;
+  border: 1px solid #2de2e6;
   border-radius: 8px;
   background: #070412;
   color: white;
   max-height: 90vh;
   max-width: 90vw;
+  margin: auto;
 
   &::backdrop {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.75);
+  }
+
+  &:focus {
+    outline: none;
   }
 }
