@@ -1,16 +1,17 @@
 .flow-chart {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   gap: 32px;
-  padding: 24px;
+  padding: 24px 48px;
 }
 
 .flow-item {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   position: relative;
+  width: 100%;
 }
 
 .flow-node {
@@ -18,7 +19,7 @@
   border: 1px solid #2de2e6;
   border-radius: 8px;
   padding: 12px;
-  min-width: 200px;
+  width: 280px;
   position: relative;
 
   &--disabled {
@@ -55,8 +56,7 @@
   &__connector {
     position: absolute;
     bottom: -32px;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 50%;
     width: 2px;
     height: 32px;
     background: #2de2e6;
@@ -79,11 +79,21 @@
 .flow-branch {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   gap: 32px;
   margin-top: 32px;
-  padding: 24px;
+  padding: 24px 0 24px 24px;
   border-left: 2px dashed #2de2e6;
-  border-right: 2px dashed #2de2e6;
-  border-radius: 8px;
+  position: relative;
+  width: calc(100% - 48px);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 140px;
+    width: 24px;
+    height: 2px;
+    background: #2de2e6;
+  }
 }
