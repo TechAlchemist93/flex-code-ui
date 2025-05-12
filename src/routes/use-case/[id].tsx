@@ -2,12 +2,13 @@ import { createAsync, useParams } from "@solidjs/router";
 import { Match, Switch, createSignal } from "solid-js";
 import { fetchActions, fetchUseCaseById } from "../../requests";
 import { createQuery } from "@tanstack/solid-query";
-import { ActionDetails, FlowChart } from "../../patterns";
+import { ActionDetails, ActionSelector, FlowChart } from "../../patterns";
 import "./styles.scss";
 
 const UseCase = () => {
   const params = useParams<{ id: string }>();
   const [selectedAction, setSelectedAction] = createSignal<string>();
+  const [addingAtIndex, setAddingAtIndex] = createSignal<number>();
 
   const useCase = createQuery(() => ({
     queryKey: ["fetchUseCaseById", params.id],
@@ -27,6 +28,19 @@ const UseCase = () => {
     return actions.data.find(action => action.name === selected);
   };
 
+  const handleAddAction = (index: number) => {
+    setAddingAtIndex(index);
+  };
+
+  const handleActionSelect = (action: ActionDetails) => {
+    const index = addingAtIndex();
+    if (index === undefined) return;
+
+    // Here you would make an API call to update the use case
+    console.log("Adding action", action.name, "at index", index);
+    setAddingAtIndex(undefined);
+  };
+
   return (
     <div class="use-case">
       <Switch>
@@ -40,9 +54,16 @@ const UseCase = () => {
               actions={useCase.data.actions} 
               selectedAction={selectedAction()}
               onActionSelect={setSelectedAction}
+              onAddAction={handleAddAction}
             />
             <ActionDetails action={selectedActionDetails()} />
           </div>
+          <Show when={addingAtIndex() !== undefined && actions.data}>
+            <ActionSelector
+              actions={actions.data}
+              onSelect={handleActionSelect}
+            />
+          </Show>
         </Match>
       </Switch>
     </div>

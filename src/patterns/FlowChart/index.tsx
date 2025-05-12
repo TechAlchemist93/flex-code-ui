@@ -39,14 +39,28 @@ interface FlowChartProps {
   actions: Action[];
   selectedAction?: string;
   onActionSelect?: (name: string) => void;
+  onAddAction?: (index: number) => void;
 }
 
 export const FlowChart: Component<FlowChartProps> = (props) => {
-  const renderAction = (action: Action) => {
+  const renderAddButton = (index: number) => (
+    <button 
+      class="flow-add-button"
+      onClick={() => props.onAddAction?.(index)}
+    >
+      <span class="flow-add-button__icon">+</span>
+      <span class="flow-add-button__text">Add Action</span>
+    </button>
+  );
+
+  const renderAction = (action: Action, index: number, isNested = false) => {
     const hasChildren = action.type === "CONDITIONAL" && action.actions?.length > 0;
     
     return (
       <div class="flow-item">
+        <Show when={!isNested}>
+          {renderAddButton(index)}
+        </Show>
         <FlowChartNode
           name={action.name}
           type={action.type}
@@ -59,7 +73,7 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
         <Show when={hasChildren}>
           <div class="flow-branch">
             <For each={action.actions}>
-              {(childAction) => renderAction(childAction)}
+              {(childAction, i) => renderAction(childAction, i(), true)}
             </For>
           </div>
         </Show>
@@ -69,9 +83,15 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
 
   return (
     <div class="flow-chart">
+      <Show when={props.actions.length === 0}>
+        {renderAddButton(0)}
+      </Show>
       <For each={props.actions}>
-        {(action) => renderAction(action)}
+        {(action, i) => renderAction(action, i())}
       </For>
+      <Show when={props.actions.length > 0}>
+        {renderAddButton(props.actions.length)}
+      </Show>
     </div>
   );
 };
