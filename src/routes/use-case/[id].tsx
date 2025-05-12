@@ -29,7 +29,7 @@ const UseCase = () => {
   };
 
   const handleAddAction = () => {
-    setAddingAtIndex(props.actions?.length ?? 0);
+    setAddingAtIndex(useCase.data?.actions?.length ?? 0);
   };
 
   const handleActionSelect = (action: ActionDetails) => {
