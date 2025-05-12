@@ -27,6 +27,16 @@
     border-color: #666;
   }
 
+  &--selected {
+    border-color: #ff3864;
+    background: #1f1f1f;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background: #1f1f1f;
+  }
+
   &__content {
     display: flex;
     flex-direction: column;

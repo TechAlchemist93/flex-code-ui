@@ -1,6 +1,12 @@
 import { unwrapFetch } from "./utils";
 
 /**
+ * @summary Retrieves all available actions and their details.
+ */
+export const fetchActions = async (): Promise<ActionDetails[]> =>
+  unwrapFetch<ActionDetails[]>(fetch("http://localhost:8080/actions/all"));
+
+/**
  * @summary Retrieves all use cases from the backend.
  */
 export const fetchUseCases = async (): Promise<UseCase[]> =>

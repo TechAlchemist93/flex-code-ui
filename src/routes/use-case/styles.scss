@@ -1,6 +1,7 @@
 .use-case {
   padding: 24px 0;
   margin-left: 240px; // Space for nav
+  margin-right: 320px; // Space for details panel
 
   &__title {
     font-size: 24px;
@@ -12,5 +13,9 @@
   &__error {
     padding: 0 48px;
     color: #ff3864;
+  }
+
+  &__content {
+    position: relative;
   }
 }
