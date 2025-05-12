@@ -21,8 +21,10 @@ export const fetchUseCaseById = async (
   unwrapFetch<UseCase>(fetch(`http://localhost:8080/usecases/${name}`, { signal }));
 
 /**
- * @summary Retrieves all use-case names as an array of strings.
+ * @summary Retrieves all use-case names by fetching all use cases and mapping their names.
  * This is used for navigation items.
  */
-export const fetchUseCaseNames = async (): Promise<string[]> =>
-  unwrapFetch<string[]>(fetch(`http://localhost:8080/usecases/names`));
+export const fetchUseCaseNames = async (): Promise<string[]> => {
+  const useCases = await fetchUseCases();
+  return useCases.map(useCase => useCase.name);
+};
