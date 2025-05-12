@@ -28,17 +28,19 @@ const UseCase = () => {
     return actions.data.find(action => action.name === selected);
   };
 
-  const handleAddAction = (index: number) => {
-    setAddingAtIndex(index);
+  const handleAddAction = () => {
+    setAddingAtIndex(props.actions?.length ?? 0);
   };
 
   const handleActionSelect = (action: ActionDetails) => {
-    const index = addingAtIndex();
-    if (index === undefined) return;
-
     // Here you would make an API call to update the use case
-    console.log("Adding action", action.name, "at index", index);
+    console.log("Adding action", action.name);
     setAddingAtIndex(undefined);
+  };
+
+  const handleReorder = (fromIndex: number, toIndex: number) => {
+    // Here you would make an API call to update the use case
+    console.log("Reordering action from", fromIndex, "to", toIndex);
   };
 
   return (
@@ -54,10 +56,14 @@ const UseCase = () => {
               actions={useCase.data.actions} 
               selectedAction={selectedAction()}
               onActionSelect={setSelectedAction}
-              onAddAction={handleAddAction}
+              onReorder={handleReorder}
             />
             <ActionDetails action={selectedActionDetails()} />
           </div>
+          <button class="use-case__add-button" onClick={handleAddAction}>
+            <span class="use-case__add-button-icon">+</span>
+            Add Action
+          </button>
           <Show when={addingAtIndex() !== undefined && actions.data}>
             <ActionSelector
               actions={actions.data}

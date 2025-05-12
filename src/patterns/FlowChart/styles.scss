@@ -18,9 +18,9 @@
   background: #1a1a1a;
   border: 1px solid #2de2e6;
   border-radius: 8px;
-  padding: 12px;
   width: 280px;
   position: relative;
+  display: flex;
 
   &--disabled {
     opacity: 0.5;
@@ -32,15 +32,39 @@
     background: #1f1f1f;
   }
 
-  &:hover {
-    cursor: pointer;
-    background: #1f1f1f;
+  &--draggable {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &__drag-handle {
+    padding: 12px 8px;
+    color: #2de2e6;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+
+    .flow-node--draggable:hover & {
+      opacity: 1;
+    }
   }
 
   &__content {
+    flex: 1;
+    padding: 12px 12px 12px 0;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    cursor: pointer;
+
+    &:hover {
+      background: #1f1f1f;
+    }
   }
 
   &__header {

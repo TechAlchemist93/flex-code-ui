@@ -39,37 +39,59 @@ interface FlowChartProps {
   actions: Action[];
   selectedAction?: string;
   onActionSelect?: (name: string) => void;
-  onAddAction?: (index: number) => void;
+  onReorder?: (fromIndex: number, toIndex: number) => void;
 }
 
 export const FlowChart: Component<FlowChartProps> = (props) => {
-  const renderAddButton = (index: number) => (
-    <button 
-      class="flow-add-button"
-      onClick={() => props.onAddAction?.(index)}
-    >
-      <span class="flow-add-button__icon">+</span>
-      <span class="flow-add-button__text">Add Action</span>
-    </button>
-  );
+  let draggedIndex: number | null = null;
+
+  const handleDragStart = (index: number, e: DragEvent) => {
+    draggedIndex = index;
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+    }
+  };
+
+  const handleDragOver = (e: DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'move';
+    }
+  };
+
+  const handleDrop = (index: number, e: DragEvent) => {
+    e.preventDefault();
+    if (draggedIndex !== null && draggedIndex !== index) {
+      props.onReorder?.(draggedIndex, index);
+    }
+    draggedIndex = null;
+  };
 
   const renderAction = (action: Action, index: number, isNested = false) => {
     const hasChildren = action.type === "CONDITIONAL" && action.actions?.length > 0;
     
     return (
-      <div class="flow-item">
-        <Show when={!isNested}>
-          {renderAddButton(index)}
-        </Show>
-        <FlowChartNode
-          name={action.name}
-          type={action.type}
-          source={action.source}
-          enabled={action.enabled}
-          hasChildren={hasChildren}
-          selected={props.selectedAction === action.name}
-          onClick={() => props.onActionSelect?.(action.name)}
-        />
+      <div 
+        class="flow-item"
+        draggable={!isNested}
+        onDragStart={(e) => handleDragStart(index, e)}
+        onDragOver={handleDragOver}
+        onDrop={(e) => handleDrop(index, e)}
+      >
+        <div class="flow-node" classList={{ 
+          "flow-node--selected": props.selectedAction === action.name,
+          "flow-node--disabled": !action.enabled,
+          "flow-node--draggable": !isNested
+        }}>
+          <div class="flow-node__drag-handle">⋮⋮</div>
+          <div class="flow-node__content" onClick={() => props.onActionSelect?.(action.name)}>
+            <div class="flow-node__header">
+              <span class="flow-node__type">{action.type}</span>
+              <span class="flow-node__source">{action.source}</span>
+            </div>
+            <div class="flow-node__name">{action.name}</div>
+          </div>
+        </div>
         <Show when={hasChildren}>
           <div class="flow-branch">
             <For each={action.actions}>
@@ -83,15 +105,9 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
 
   return (
     <div class="flow-chart">
-      <Show when={props.actions.length === 0}>
-        {renderAddButton(0)}
-      </Show>
       <For each={props.actions}>
         {(action, i) => renderAction(action, i())}
       </For>
-      <Show when={props.actions.length > 0}>
-        {renderAddButton(props.actions.length)}
-      </Show>
     </div>
   );
 };

@@ -17,5 +17,34 @@
 
   &__content {
     position: relative;
+    margin-bottom: 32px;
+  }
+
+  &__add-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 48px;
+    padding: 12px 24px;
+    background: transparent;
+    border: 2px dashed #2de2e6;
+    border-radius: 8px;
+    color: #2de2e6;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 280px;
+
+    &:hover {
+      background: #1f1f1f;
+      border-color: #ff3864;
+      color: #ff3864;
+    }
+
+    &-icon {
+      font-size: 20px;
+      font-weight: bold;
+    }
   }
 }
