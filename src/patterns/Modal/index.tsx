@@ -1,5 +1,6 @@
 import { createSignal, onMount, ParentComponent, Show } from "solid-js";
 import { Portal } from "solid-js/web";
+import "./styles.scss";
 
 export type ModalRef = {
   open(): void;
@@ -50,9 +51,19 @@ export const Modal: ParentComponent<Props> = (props) => {
   });
 
   return (
-    <Show when={isOpen}>
+    <Show when={isOpen()}>
       <Portal>
-        <dialog ref={modalRef}></dialog>
+        <dialog 
+          ref={modalRef} 
+          class="modal"
+          onClick={(e) => {
+            if (e.target === modalRef) {
+              close();
+            }
+          }}
+        >
+          {props.children}
+        </dialog>
       </Portal>
     </Show>
   );

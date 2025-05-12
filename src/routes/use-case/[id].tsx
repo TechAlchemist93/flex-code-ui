@@ -119,10 +119,12 @@ const UseCase = () => {
             <span class="use-case__add-button-icon">+</span>
             Add Action
           </button>
-          <Show when={addingAtIndex() !== undefined && actions.data}>
+          <Show when={actions.data}>
             <ActionSelector
               actions={actions.data}
               onSelect={handleActionSelect}
+              onClose={() => setAddingAtIndex(undefined)}
+              isOpen={addingAtIndex() !== undefined}
             />
           </Show>
         </Match>

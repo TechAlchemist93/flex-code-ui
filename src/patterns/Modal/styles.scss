@@ -1,0 +1,13 @@
+.modal {
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: #070412;
+  color: white;
+  max-height: 90vh;
+  max-width: 90vw;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}

@@ -1,10 +1,12 @@
-import { Component, For, createSignal } from "solid-js";
+import { Component, For, createSignal, createEffect } from "solid-js";
 import { Modal, type ModalRef } from "../Modal";
 import "./styles.scss";
 
 interface ActionSelectorProps {
   actions: ActionDetails[];
   onSelect: (action: ActionDetails) => void;
+  onClose: () => void;
+  isOpen: boolean;
 }
 
 export const ActionSelector: Component<ActionSelectorProps> = (props) => {
@@ -21,12 +23,26 @@ export const ActionSelector: Component<ActionSelectorProps> = (props) => {
 
   const handleSelect = (action: ActionDetails) => {
     props.onSelect(action);
-    modalRef.close();
+    props.onClose();
   };
+
+  let modalRef: ModalRef;
+
+  createEffect(() => {
+    if (props.isOpen) {
+      modalRef?.open();
+    } else {
+      modalRef?.close();
+    }
+  });
 
   return (
     <Modal ref={(r) => (modalRef = r)}>
       <div class="action-selector">
+        <div class="action-selector__header">
+          <h2 class="action-selector__title">Select Action</h2>
+          <button class="action-selector__close" onClick={props.onClose}>×</button>
+        </div>
         <div class="action-selector__search">
           <input
             type="text"
