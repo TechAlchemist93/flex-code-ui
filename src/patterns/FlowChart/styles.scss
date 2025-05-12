@@ -12,6 +12,25 @@
   align-items: flex-start;
   position: relative;
   width: 100%;
+  padding: 8px 0;
+  transition: padding 0.2s ease;
+
+  &--drop-target {
+    padding: 24px 0;
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #ff3864;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+  }
 }
 
 .flow-node {

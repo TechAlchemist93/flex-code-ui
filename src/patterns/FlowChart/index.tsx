@@ -44,6 +44,8 @@ interface FlowChartProps {
 
 export const FlowChart: Component<FlowChartProps> = (props) => {
   let draggedIndex: number | null = null;
+  const [dropTarget, setDropTarget] = createSignal<number | null>(null);
+  let dropTimeout: number;
 
   const handleDragStart = (index: number, e: DragEvent) => {
     draggedIndex = index;
@@ -52,11 +54,30 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
     }
   };
 
-  const handleDragOver = (e: DragEvent) => {
+  const handleDragOver = (index: number, e: DragEvent) => {
     e.preventDefault();
     if (e.dataTransfer) {
       e.dataTransfer.dropEffect = 'move';
     }
+    
+    // Clear any existing timeout
+    if (dropTimeout) {
+      window.clearTimeout(dropTimeout);
+    }
+
+    // Set a new timeout to show the drop target after a short delay
+    dropTimeout = window.setTimeout(() => {
+      if (draggedIndex !== null && draggedIndex !== index) {
+        setDropTarget(index);
+      }
+    }, 200);
+  };
+
+  const handleDragLeave = () => {
+    if (dropTimeout) {
+      window.clearTimeout(dropTimeout);
+    }
+    setDropTarget(null);
   };
 
   const handleDrop = (index: number, e: DragEvent) => {
@@ -65,6 +86,14 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
       props.onReorder?.(draggedIndex, index);
     }
     draggedIndex = null;
+    setDropTarget(null);
+  };
+
+  const handleDragEnd = () => {
+    if (dropTimeout) {
+      window.clearTimeout(dropTimeout);
+    }
+    setDropTarget(null);
   };
 
   const renderAction = (action: Action, index: number, isNested = false) => {
@@ -73,9 +102,12 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
     return (
       <div 
         class="flow-item"
+        classList={{ "flow-item--drop-target": dropTarget() === index }}
         draggable={!isNested}
         onDragStart={(e) => handleDragStart(index, e)}
-        onDragOver={handleDragOver}
+        onDragOver={(e) => handleDragOver(index, e)}
+        onDragLeave={handleDragLeave}
+        onDragEnd={handleDragEnd}
         onDrop={(e) => handleDrop(index, e)}
       >
         <div class="flow-node" classList={{ 

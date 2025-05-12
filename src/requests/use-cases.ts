@@ -26,6 +26,15 @@ export const fetchUseCaseById = async (
 ): Promise<UseCase> =>
   unwrapFetch<UseCase>(fetch(`http://localhost:8080/usecases/${encodeURIComponent(name)}`, { signal }));
 
+export const updateUseCase = async (useCase: UseCase): Promise<UseCase> =>
+  unwrapFetch<UseCase>(fetch(`http://localhost:8080/usecases/${encodeURIComponent(useCase.name)}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(useCase),
+  }));
+
 /**
  * @summary Retrieves all use-case names by fetching all use cases and mapping their names.
  * This is used for navigation items.
