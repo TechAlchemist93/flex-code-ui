@@ -18,7 +18,7 @@ export const fetchUseCaseById = async (
   name: string,
   signal: AbortSignal
 ): Promise<UseCase> =>
-  unwrapFetch<UseCase>(fetch(`http://localhost:8080/usecases/${name}`, { signal }));
+  unwrapFetch<UseCase>(fetch(`http://localhost:8080/usecases/${encodeURIComponent(name)}`, { signal }));
 
 /**
  * @summary Retrieves all use-case names by fetching all use cases and mapping their names.
