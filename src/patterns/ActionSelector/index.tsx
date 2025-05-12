@@ -10,8 +10,8 @@ interface ActionSelectorProps {
 }
 
 export const ActionSelector: Component<ActionSelectorProps> = (props) => {
-  let modalRef: ModalRef;
   const [searchTerm, setSearchTerm] = createSignal("");
+  let modalRef: ModalRef;
 
   const filteredActions = () => {
     const term = searchTerm().toLowerCase();
@@ -25,8 +25,6 @@ export const ActionSelector: Component<ActionSelectorProps> = (props) => {
     props.onSelect(action);
     props.onClose();
   };
-
-  let modalRef: ModalRef;
 
   createEffect(() => {
     if (props.isOpen) {
