@@ -1,0 +1,89 @@
+.flow-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 24px;
+}
+
+.flow-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.flow-node {
+  background: #1a1a1a;
+  border: 1px solid #2de2e6;
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 200px;
+  position: relative;
+
+  &--disabled {
+    opacity: 0.5;
+    border-color: #666;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+
+  &__type {
+    color: #ff3864;
+    font-weight: 500;
+  }
+
+  &__source {
+    color: #2de2e6;
+  }
+
+  &__name {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &__connector {
+    position: absolute;
+    bottom: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 32px;
+    background: #2de2e6;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #2de2e6;
+    }
+  }
+}
+
+.flow-branch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  margin-top: 32px;
+  padding: 24px;
+  border-left: 2px dashed #2de2e6;
+  border-right: 2px dashed #2de2e6;
+  border-radius: 8px;
+}
