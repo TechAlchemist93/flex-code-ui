@@ -1,4 +1,4 @@
-import { Component, For, Show } from "solid-js";
+import { Component, For, Show, createSignal } from "solid-js";
 import "./styles.scss";
 
 interface FlowChartNodeProps {
