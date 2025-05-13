@@ -2,12 +2,15 @@ import { createAsync, useParams } from "@solidjs/router";
 import { Match, Show, Switch, createSignal, createEffect } from "solid-js";
 import { fetchActions, fetchUseCaseById, updateUseCase } from "../../requests";
 import { createQuery } from "@tanstack/solid-query";
-import { ActionDetails, ActionSelector, FlowChart } from "../../patterns";
+import { ActionSelector, FlowChart } from "../../patterns";
+import { ActionDetailsModal } from "../../patterns/ActionDetailsModal";
+import { ModalRef } from "../../patterns/Modal";
 import "./styles.scss";
 
 const UseCase = () => {
   const params = useParams<{ id: string }>();
   const [selectedAction, setSelectedAction] = createSignal<string>();
+  let detailsModalRef: ModalRef;
   interface AddActionTarget {
     path: number[];  // Path to the parent action list (empty for root)
     index: number;   // Index where to insert the new action
@@ -145,22 +148,21 @@ const UseCase = () => {
             <FlowChart 
               actions={localActions()} 
               selectedAction={selectedAction()}
-              onActionSelect={setSelectedAction}
+              onActionSelect={(name) => {
+                setSelectedAction(name);
+                detailsModalRef.open();
+              }}
               onReorder={handleReorder}
               onAddAction={handleAddAction}
               onRemoveAction={handleRemoveAction}
               onToggleEnabled={handleToggleEnabled}
             />
-            <ActionDetails 
-              action={selectedActionDetails()} 
-              source={selectedAction() ? localActions().find(a => a.name === selectedAction())?.source : undefined}
-              onRemove={selectedAction() ? () => {
-                const actionIndex = localActions().findIndex(a => a.name === selectedAction());
-                if (actionIndex !== -1) {
-                  handleRemoveAction([], actionIndex);
-                  setSelectedAction(undefined);
-                }
-              } : undefined}
+            <ActionDetailsModal 
+              action={selectedActionDetails()}
+              ref={(r) => {
+                detailsModalRef = r;
+                return r;
+              }}
             />
           </div>
           <Show when={hasChanges()}>

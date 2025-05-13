@@ -128,6 +128,24 @@
     color: #ff3864;
   }
 
+  &__actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  &__action-btn {
+    font-size: 10px !important;
+    padding: 4px 8px !important;
+
+    &--remove {
+      background: #ff3864 !important;
+      &:hover {
+        background: darken(#ff3864, 20%) !important;
+      }
+    }
+  }
+
   &__menu-button {
     padding: 0 12px;
     background: none;

@@ -1,13 +1,9 @@
-.action-details {
-  width: 320px;
+.action-details-modal {
   padding: 24px;
+  min-width: 320px;
+  max-width: 480px;
   background: #1a1a1a;
-  border-left: 1px solid #2de2e6;
-  height: 100vh;
-  position: fixed;
-  right: 0;
-  top: 0;
-  overflow-y: auto;
+  color: white;
 
   &__empty {
     color: #666;
@@ -18,17 +14,6 @@
 
   &__header {
     margin-bottom: 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-
-  &__header-main {
-    flex: 1;
-  }
-
-  &__remove {
-    margin-left: 16px;
   }
 
   &__title {

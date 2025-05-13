@@ -135,7 +135,7 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
           "flow-node--draggable": parentPath.length === 0
         }}>
           <div class="flow-node__drag-handle">⋮⋮</div>
-          <div class="flow-node__content" onClick={() => props.onActionSelect?.(action.name)}>
+          <div class="flow-node__content">
             <div class="flow-node__header">
               <span class="flow-node__type">{action.type}</span>
               <span class="flow-node__source">{action.source}</span>
@@ -151,22 +151,29 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
                 ))}
               </div>
             )}
+            <div class="flow-node__actions">
+              <button 
+                class="btn flow-node__action-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  props.onActionSelect?.(action.name);
+                }}
+              >
+                Details
+              </button>
+              <Show when={action.source === "API"}>
+                <button 
+                  class="btn flow-node__action-btn flow-node__action-btn--remove"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    props.onRemoveAction?.(parentPath, index);
+                  }}
+                >
+                  Remove
+                </button>
+              </Show>
+            </div>
           </div>
-          <button 
-            class="flow-node__menu-button"
-            onClick={(e) => {
-              e.stopPropagation();
-              const rect = e.currentTarget.getBoundingClientRect();
-              setMenuState({
-                isOpen: true,
-                position: { x: rect.right + 8, y: rect.top },
-                path: parentPath,
-                index: index
-              });
-            }}
-          >
-            ⋮
-          </button>
         </div>
         <Show when={hasChildren}>
           <div class="flow-branch">
