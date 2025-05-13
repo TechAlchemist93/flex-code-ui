@@ -141,6 +141,16 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
               <span class="flow-node__source">{action.source}</span>
             </div>
             <div class="flow-node__name">{action.name}</div>
+            {action.type === "Function" && action.keyValues && (
+              <div class="flow-node__key-values">
+                {Object.entries(action.keyValues).map(([key, value]) => (
+                  <div class="flow-node__key-value">
+                    <span class="flow-node__key">{key}:</span>
+                    <span class="flow-node__value">{value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <button 
             class="flow-node__menu-button"

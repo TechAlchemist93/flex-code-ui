@@ -82,7 +82,12 @@ export const ActionSelector: Component<ActionSelectorProps> = (props) => {
                     </>
                   )}
                   {action.type === "Function" && (
-                    <span>Parameters: {action.params.length}</span>
+                    <>
+                      <span>Parameters: {action.params.length}</span>
+                      {action.keyValues && Object.entries(action.keyValues).map(([key, value]) => (
+                        <span>{key}: {value}</span>
+                      ))}
+                    </>
                   )}
                   {action.type === "Conditional" && (
                     <span>Inputs: {action.inputs.length}</span>
