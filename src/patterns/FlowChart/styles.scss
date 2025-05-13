@@ -12,7 +12,7 @@
   align-items: flex-start;
   position: relative;
   width: 100%;
-  padding: 8px 0;
+  padding: 0;
   transition: padding 0.2s ease;
 
   &--drop-target {
@@ -75,11 +75,12 @@
 
   &__content {
     flex: 1;
-    padding: 12px 12px 12px 0;
+    padding: 12px 12px 48px 0;
     display: flex;
     flex-direction: column;
     gap: 8px;
     cursor: pointer;
+    position: relative;
 
     &:hover {
       background: #1f1f1f;
@@ -104,6 +105,90 @@
   &__name {
     font-size: 14px;
     font-weight: 500;
+  }
+
+  &__key-values {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    padding-top: 4px;
+  }
+
+  &__key-value {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__key {
+    color: #2de2e6;
+    font-weight: 500;
+  }
+
+  &__value {
+    color: #ff3864;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+  }
+
+  &__action-btn {
+    font-size: 10px !important;
+    padding: 4px 8px !important;
+
+    &--icon {
+      width: 28px !important;
+      height: 28px !important;
+      padding: 6px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: #2de2e6 !important;
+      margin-right: 8px !important;
+
+      &:hover {
+        background: darken(#2de2e6, 20%) !important;
+      }
+
+      i {
+        font-size: 14px !important;
+        color: #1a1a1a !important;
+      }
+
+      &.enabled {
+        background: #2de2e6 !important;
+        &:hover {
+          background: darken(#2de2e6, 20%) !important;
+        }
+      }
+
+      &.disabled {
+        background: #2de2e6 !important;
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+        &:hover {
+          background: #2de2e6 !important;
+          opacity: 0.6 !important;
+        }
+      }
+
+      &[disabled] {
+        background: #2de2e6 !important;
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+        &:hover {
+          background: #2de2e6 !important;
+          opacity: 0.6 !important;
+        }
+      }
+    }
   }
 
   &__menu-button {
@@ -160,21 +245,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   background: transparent;
   border: 1px dashed #2de2e6;
   border-radius: 50%;
   color: #2de2e6;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
-  margin: 8px 0;
   padding: 0;
   opacity: 0;
   transition: all 0.2s ease;
   position: absolute;
   left: 50%;
+  top: -10px;
   transform: translateX(-50%);
+  z-index: 1;
 
   &:hover {
     background: #1f1f1f;

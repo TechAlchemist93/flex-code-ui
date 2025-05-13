@@ -1,7 +1,6 @@
 .use-case {
   padding: 24px 0;
   margin-left: 240px; // Space for nav
-  margin-right: 320px; // Space for details panel
   min-height: 100vh;
   position: relative;
 
@@ -25,7 +24,7 @@
   &__save-button {
     position: fixed;
     bottom: 24px;
-    right: 368px; // 320px for details panel + 48px padding
+    right: 48px;
     padding: 12px 24px;
     background: #2de2e6;
     border: none;

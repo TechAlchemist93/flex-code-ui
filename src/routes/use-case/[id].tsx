@@ -2,12 +2,15 @@ import { createAsync, useParams } from "@solidjs/router";
 import { Match, Show, Switch, createSignal, createEffect } from "solid-js";
 import { fetchActions, fetchUseCaseById, updateUseCase } from "../../requests";
 import { createQuery } from "@tanstack/solid-query";
-import { ActionDetails, ActionSelector, FlowChart } from "../../patterns";
+import { ActionSelector, FlowChart } from "../../patterns";
+import { ActionDetailsModal } from "../../patterns/ActionDetailsModal";
+import { ModalRef } from "../../patterns/Modal";
 import "./styles.scss";
 
 const UseCase = () => {
   const params = useParams<{ id: string }>();
   const [selectedAction, setSelectedAction] = createSignal<string>();
+  let detailsModalRef: ModalRef;
   interface AddActionTarget {
     path: number[];  // Path to the parent action list (empty for root)
     index: number;   // Index where to insert the new action
@@ -48,6 +51,12 @@ const UseCase = () => {
   };
 
   const getActionListAtPath = (actions: Action[], path: number[]): Action[] => {
+    // If path is empty, return the root actions list
+    if (path.length === 0) {
+      return actions;
+    }
+
+    // Otherwise traverse the path
     let current = actions;
     for (const index of path) {
       const action = current[index];
@@ -85,33 +94,81 @@ const UseCase = () => {
   };
 
   const handleReorder = (fromIndex: number, toIndex: number) => {
-    const updatedActions = [...localActions()];
+    const actions = localActions();
+    const updatedActions = [...actions];
     const [movedAction] = updatedActions.splice(fromIndex, 1);
-    updatedActions.splice(toIndex, 0, movedAction);
+    updatedActions.splice(toIndex, 0, JSON.parse(JSON.stringify(movedAction)));
     setLocalActions(updatedActions);
     setHasChanges(true);
   };
 
   const handleRemoveAction = (path: number[], index: number) => {
-    const updatedActions = [...localActions()];
-    const targetList = getActionListAtPath(updatedActions, path);
-    if (targetList) {
-      targetList.splice(index, 1);
+    const updatedActions = JSON.parse(JSON.stringify(localActions()));
+    
+    // If it's a root-level action
+    if (path.length === 0) {
+      updatedActions.splice(index, 1);
       setLocalActions(updatedActions);
       setHasChanges(true);
+      return;
     }
+    
+    // For nested actions
+    let current = updatedActions;
+    for (let i = 0; i < path.length; i++) {
+      const pathIndex = path[i];
+      if (current[pathIndex]?.type === "CONDITIONAL") {
+        current = current[pathIndex].actions;
+      } else {
+        return;
+      }
+    }
+    
+    current.splice(index, 1);
+    setLocalActions(updatedActions);
+    setHasChanges(true);
   };
 
   const handleToggleEnabled = (path: number[], index: number) => {
-    const updatedActions = [...localActions()];
-    const targetList = getActionListAtPath(updatedActions, path);
-    if (targetList) {
-      const action = targetList[index];
-      if (action) {
-        action.enabled = !action.enabled;
+    console.log('Toggle handler called:', { path, index });
+    
+    // Create a deep copy of the actions array
+    const updatedActions = JSON.parse(JSON.stringify(localActions()));
+    
+    // If it's a root-level action
+    if (path.length === 0) {
+      if (updatedActions[index]) {
+        updatedActions[index] = {
+          ...updatedActions[index],
+          enabled: !updatedActions[index].enabled
+        };
+        console.log('Toggled root action:', updatedActions[index]);
         setLocalActions(updatedActions);
         setHasChanges(true);
       }
+      return;
+    }
+    
+    // For nested actions
+    let current = updatedActions;
+    for (let i = 0; i < path.length; i++) {
+      const pathIndex = path[i];
+      if (current[pathIndex]?.type === "CONDITIONAL") {
+        current = current[pathIndex].actions;
+      } else {
+        console.log('Invalid path:', path);
+        return;
+      }
+    }
+    
+    if (current[index]) {
+      current[index] = {
+        ...current[index],
+        enabled: !current[index].enabled
+      };
+      console.log('Toggled nested action:', current[index]);
+      setLocalActions(updatedActions);
+      setHasChanges(true);
     }
   };
 
@@ -145,13 +202,22 @@ const UseCase = () => {
             <FlowChart 
               actions={localActions()} 
               selectedAction={selectedAction()}
-              onActionSelect={setSelectedAction}
+              onActionSelect={(name) => {
+                setSelectedAction(name);
+                detailsModalRef.open();
+              }}
               onReorder={handleReorder}
               onAddAction={handleAddAction}
               onRemoveAction={handleRemoveAction}
               onToggleEnabled={handleToggleEnabled}
             />
-            <ActionDetails action={selectedActionDetails()} />
+            <ActionDetailsModal 
+              action={selectedActionDetails()}
+              ref={(r) => {
+                detailsModalRef = r;
+                return r;
+              }}
+            />
           </div>
           <Show when={hasChanges()}>
             <button 

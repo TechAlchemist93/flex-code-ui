@@ -135,28 +135,61 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
           "flow-node--draggable": parentPath.length === 0
         }}>
           <div class="flow-node__drag-handle">⋮⋮</div>
-          <div class="flow-node__content" onClick={() => props.onActionSelect?.(action.name)}>
+          <div class="flow-node__content">
             <div class="flow-node__header">
               <span class="flow-node__type">{action.type}</span>
               <span class="flow-node__source">{action.source}</span>
             </div>
             <div class="flow-node__name">{action.name}</div>
+            {action.type === "FUNCTION" && action.params && (
+              <div class="flow-node__key-values">
+                {Object.entries(action.params).map(([key, value]) => (
+                  <div class="flow-node__key-value">
+                    <span class="flow-node__key">{key}:</span>
+                    <span class="flow-node__value">{value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div class="flow-node__actions">
+              <button 
+                class="btn flow-node__action-btn flow-node__action-btn--icon"
+                title="Details"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  props.onActionSelect?.(action.name);
+                }}
+              >
+                <i class="fas fa-info-circle" />
+              </button>
+              <button
+                class={`btn flow-node__action-btn flow-node__action-btn--icon ${action.enabled ? 'enabled' : 'disabled'}`}
+                title={action.enabled ? "Disable" : "Enable"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (props.onToggleEnabled) {
+                    props.onToggleEnabled(parentPath, index);
+                    console.log('Toggle clicked:', { path: parentPath, index, newState: !action.enabled });
+                  }
+                }}
+              >
+                <i class="fas fa-power-off" />
+              </button>
+              <button 
+                class={`btn flow-node__action-btn flow-node__action-btn--icon ${action.source === "CODE" ? 'disabled' : ''}`}
+                title={action.source === "CODE" ? "Cannot remove CODE actions" : "Remove"}
+                disabled={action.source === "CODE"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (action.source !== "CODE") {
+                    props.onRemoveAction?.(parentPath, index);
+                  }
+                }}
+              >
+                <i class="fas fa-trash" />
+              </button>
+            </div>
           </div>
-          <button 
-            class="flow-node__menu-button"
-            onClick={(e) => {
-              e.stopPropagation();
-              const rect = e.currentTarget.getBoundingClientRect();
-              setMenuState({
-                isOpen: true,
-                position: { x: rect.right + 8, y: rect.top },
-                path: parentPath,
-                index: index
-              });
-            }}
-          >
-            ⋮
-          </button>
         </div>
         <Show when={hasChildren}>
           <div class="flow-branch">
