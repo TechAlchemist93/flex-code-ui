@@ -81,10 +81,10 @@ export const ActionSelector: Component<ActionSelectorProps> = (props) => {
                       <span>Actions: {action.actions.length}</span>
                     </>
                   )}
-                  {action.type === "Function" && (
+                  {action.type === "FUNCTION" && (
                     <>
-                      <span>Parameters: {action.params.length}</span>
-                      {action.keyValues && Object.entries(action.keyValues).map(([key, value]) => (
+                      <span>Parameters: {Object.keys(action.params).length}</span>
+                      {action.params && Object.entries(action.params).map(([key, value]) => (
                         <span>{key}: {value}</span>
                       ))}
                     </>
