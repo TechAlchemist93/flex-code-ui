@@ -35,6 +35,8 @@ const ParamList: Component<ParamListProps> = (props) => (
 
 interface ActionDetailsProps {
   action: ActionDetails | undefined;
+  onRemove?: () => void;
+  source?: ActionSource;
 }
 
 export const ActionDetails: Component<ActionDetailsProps> = (props) => {
@@ -42,8 +44,15 @@ export const ActionDetails: Component<ActionDetailsProps> = (props) => {
     <div class="action-details">
       <Show when={props.action} fallback={<p class="action-details__empty">Select an action to view details</p>}>
         <div class="action-details__header">
-          <h2 class="action-details__title">{props.action?.name}</h2>
-          <span class="action-details__type">{props.action?.type}</span>
+          <div class="action-details__header-main">
+            <h2 class="action-details__title">{props.action?.name}</h2>
+            <span class="action-details__type">{props.action?.type}</span>
+          </div>
+          <Show when={props.source === "API" && props.onRemove}>
+            <button class="btn action-details__remove" onClick={props.onRemove}>
+              Remove
+            </button>
+          </Show>
         </div>
 
         <Switch>

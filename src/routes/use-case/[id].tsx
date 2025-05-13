@@ -151,7 +151,17 @@ const UseCase = () => {
               onRemoveAction={handleRemoveAction}
               onToggleEnabled={handleToggleEnabled}
             />
-            <ActionDetails action={selectedActionDetails()} />
+            <ActionDetails 
+              action={selectedActionDetails()} 
+              source={selectedAction() ? localActions().find(a => a.name === selectedAction())?.source : undefined}
+              onRemove={selectedAction() ? () => {
+                const actionIndex = localActions().findIndex(a => a.name === selectedAction());
+                if (actionIndex !== -1) {
+                  handleRemoveAction([], actionIndex);
+                  setSelectedAction(undefined);
+                }
+              } : undefined}
+            />
           </div>
           <Show when={hasChanges()}>
             <button 

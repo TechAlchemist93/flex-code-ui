@@ -18,6 +18,17 @@
 
   &__header {
     margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  &__header-main {
+    flex: 1;
+  }
+
+  &__remove {
+    margin-left: 16px;
   }
 
   &__title {
