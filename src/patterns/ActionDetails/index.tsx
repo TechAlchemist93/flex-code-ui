@@ -59,6 +59,21 @@ export const ActionDetails: Component<ActionDetailsProps> = (props) => {
 
           <Match when={props.action?.type === "Function"}>
             <ParamList title="Parameters" params={(props.action as FunctionDetails).params} />
+            <Show when={(props.action as FunctionDetails).keyValues}>
+              <div class="param-list">
+                <h3 class="param-list__title">Key/Value Pairs</h3>
+                <For each={Object.entries((props.action as FunctionDetails).keyValues || {})}>
+                  {([key, value]) => (
+                    <div class="param">
+                      <div class="param__header">
+                        <span class="param__name">{key}</span>
+                        <span class="param__type">{value}</span>
+                      </div>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </Show>
           </Match>
 
           <Match when={props.action?.type === "Conditional"}>

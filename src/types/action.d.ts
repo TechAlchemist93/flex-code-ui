@@ -27,6 +27,7 @@ interface WorkflowDetails extends BaseActionDetails {
 interface FunctionDetails extends BaseActionDetails {
   type: "Function";
   params: FunctionParam[];
+  keyValues?: Record<string, string>;
 }
 
 interface ConditionalDetails extends BaseActionDetails {
