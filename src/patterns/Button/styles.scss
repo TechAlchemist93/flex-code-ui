@@ -8,8 +8,38 @@
     border-radius: 12px;
     font-size: 10px;
     font-weight: 500;
+    border: none;
+    cursor: pointer;
 
     &:hover {
         background: color.adjust(#ff3864, $lightness: -20%);
+    }
+
+    &.toggle-btn {
+        width: 32px;
+        height: 32px;
+        padding: 8px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.enabled {
+            background: #2ecc71;
+            &:hover {
+                background: color.adjust(#2ecc71, $lightness: -20%);
+            }
+        }
+
+        &.disabled {
+            background: #e74c3c;
+            &:hover {
+                background: color.adjust(#e74c3c, $lightness: -20%);
+            }
+        }
+
+        i {
+            font-size: 14px;
+        }
     }
 }
