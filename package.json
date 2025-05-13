@@ -20,6 +20,8 @@
     "vite-plugin-solid": "^2.11.6"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@kobalte/core": "^0.13.9",
     "@solidjs/router": "^0.15.3",
     "@tanstack/solid-query": "^5.67.3",
     "@types/compose-function": "^0.0.33",
