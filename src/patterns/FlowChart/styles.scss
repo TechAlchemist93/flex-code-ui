@@ -12,7 +12,7 @@
   align-items: flex-start;
   position: relative;
   width: 100%;
-  padding: 2px 0;
+  padding: 0;
   transition: padding 0.2s ease;
 
   &--drop-target {
@@ -253,7 +253,7 @@
   color: #2de2e6;
   font-size: 14px;
   cursor: pointer;
-  margin: 0;
+  margin: -10px 0 -10px 0;
   padding: 0;
   opacity: 0;
   transition: all 0.2s ease;
