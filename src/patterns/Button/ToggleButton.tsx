@@ -24,9 +24,7 @@ export const ToggleButton: ParentComponent<Props> = (props) => {
           onClick={handleClick}
           class={`btn toggle-btn ${enabled() ? "enabled" : "disabled"}`}
         >
-          <Show when={enabled()} fallback={<i class="fas fa-power-off" />}>
-            <i class="fas fa-power-off" />
-          </Show>
+          <i class="fas fa-power-off" style={{ opacity: enabled() ? "1" : "0.8" }} />
         </Button>
       </Tooltip.Trigger>
       <Tooltip.Content>

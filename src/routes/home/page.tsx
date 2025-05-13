@@ -1,4 +1,3 @@
-import "@fortawesome/fontawesome-free/css/all.min.css";
 import { ToggleButton } from "../../patterns/Button";
 
 export * from "./route";
