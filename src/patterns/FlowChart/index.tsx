@@ -1,4 +1,5 @@
 import { Component, For, Show, createSignal } from "solid-js";
+import { ActionMenu } from "../ActionMenu";
 import "./styles.scss";
 
 interface FlowChartNodeProps {
@@ -41,11 +42,21 @@ interface FlowChartProps {
   onActionSelect?: (name: string) => void;
   onReorder?: (fromIndex: number, toIndex: number) => void;
   onAddAction?: (path: number[], index: number) => void;
+  onRemoveAction?: (path: number[], index: number) => void;
+  onToggleEnabled?: (path: number[], index: number) => void;
+}
+
+interface MenuState {
+  isOpen: boolean;
+  position: { x: number; y: number };
+  path: number[];
+  index: number;
 }
 
 export const FlowChart: Component<FlowChartProps> = (props) => {
   let draggedIndex: number | null = null;
   const [dropTarget, setDropTarget] = createSignal<number | null>(null);
+  const [menuState, setMenuState] = createSignal<MenuState>();
   let dropTimeout: number;
 
   const handleDragStart = (index: number, e: DragEvent) => {
@@ -131,6 +142,21 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
             </div>
             <div class="flow-node__name">{action.name}</div>
           </div>
+          <button 
+            class="flow-node__menu-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = e.currentTarget.getBoundingClientRect();
+              setMenuState({
+                isOpen: true,
+                position: { x: rect.right + 8, y: rect.top },
+                path: parentPath,
+                index: index
+              });
+            }}
+          >
+            ⋮
+          </button>
         </div>
         <Show when={hasChildren}>
           <div class="flow-branch">
@@ -149,11 +175,25 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
     );
   };
 
+  const menu = menuState();
+  const menuAction = menu ? props.actions[menu.index] : null;
+
   return (
     <div class="flow-chart">
       <For each={props.actions}>
         {(action, i) => renderAction(action, i())}
       </For>
+      <Show when={menu && menuAction}>
+        <ActionMenu
+          isOpen={true}
+          onClose={() => setMenuState(undefined)}
+          position={menu!.position}
+          canRemove={menuAction!.source === "API"}
+          isEnabled={menuAction!.enabled}
+          onRemove={() => props.onRemoveAction?.(menu!.path, menu!.index)}
+          onToggleEnabled={() => props.onToggleEnabled?.(menu!.path, menu!.index)}
+        />
+      </Show>
     </div>
   );
 };

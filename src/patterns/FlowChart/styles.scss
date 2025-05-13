@@ -106,6 +106,25 @@
     font-weight: 500;
   }
 
+  &__menu-button {
+    padding: 0 12px;
+    background: none;
+    border: none;
+    color: #2de2e6;
+    font-size: 16px;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #ff3864;
+    }
+  }
+
+  &:hover &__menu-button {
+    opacity: 1;
+  }
+
   &__connector {
     position: absolute;
     bottom: -32px;

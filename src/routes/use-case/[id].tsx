@@ -84,12 +84,48 @@ const UseCase = () => {
     setAddTarget(undefined);
   };
 
+  const getActionListAtPath = (actions: Action[], path: number[]): Action[] => {
+    let current = actions;
+    for (const index of path) {
+      const action = current[index];
+      if (action?.type === "CONDITIONAL" && Array.isArray(action.actions)) {
+        current = action.actions;
+      } else {
+        return [];
+      }
+    }
+    return current;
+  };
+
   const handleReorder = (fromIndex: number, toIndex: number) => {
     const updatedActions = [...localActions()];
     const [movedAction] = updatedActions.splice(fromIndex, 1);
     updatedActions.splice(toIndex, 0, movedAction);
     setLocalActions(updatedActions);
     setHasChanges(true);
+  };
+
+  const handleRemoveAction = (path: number[], index: number) => {
+    const updatedActions = [...localActions()];
+    const targetList = getActionListAtPath(updatedActions, path);
+    if (targetList) {
+      targetList.splice(index, 1);
+      setLocalActions(updatedActions);
+      setHasChanges(true);
+    }
+  };
+
+  const handleToggleEnabled = (path: number[], index: number) => {
+    const updatedActions = [...localActions()];
+    const targetList = getActionListAtPath(updatedActions, path);
+    if (targetList) {
+      const action = targetList[index];
+      if (action) {
+        action.enabled = !action.enabled;
+        setLocalActions(updatedActions);
+        setHasChanges(true);
+      }
+    }
   };
 
   const handleSave = async () => {
@@ -125,6 +161,8 @@ const UseCase = () => {
               onActionSelect={setSelectedAction}
               onReorder={handleReorder}
               onAddAction={handleAddAction}
+              onRemoveAction={handleRemoveAction}
+              onToggleEnabled={handleToggleEnabled}
             />
             <ActionDetails action={selectedActionDetails()} />
           </div>
