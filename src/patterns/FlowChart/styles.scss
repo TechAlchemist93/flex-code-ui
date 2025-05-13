@@ -140,16 +140,22 @@
 .flow-add-button {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   background: transparent;
   border: 1px dashed #2de2e6;
-  border-radius: 4px;
+  border-radius: 50%;
   color: #2de2e6;
-  font-size: 12px;
+  font-size: 16px;
   cursor: pointer;
-  margin: 16px 0;
+  margin: 8px 0;
+  padding: 0;
+  opacity: 0;
   transition: all 0.2s ease;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 
   &:hover {
     background: #1f1f1f;
@@ -157,8 +163,8 @@
     color: #ff3864;
   }
 
-  &__icon {
-    font-size: 16px;
-    font-weight: bold;
+  .flow-item:hover > &,
+  .flow-branch:hover > & {
+    opacity: 1;
   }
 }

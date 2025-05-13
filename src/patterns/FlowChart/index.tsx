@@ -40,6 +40,7 @@ interface FlowChartProps {
   selectedAction?: string;
   onActionSelect?: (name: string) => void;
   onReorder?: (fromIndex: number, toIndex: number) => void;
+  onAddAction?: (path: number[], index: number) => void;
 }
 
 export const FlowChart: Component<FlowChartProps> = (props) => {
@@ -96,24 +97,31 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
     setDropTarget(null);
   };
 
-  const renderAction = (action: Action, index: number, isNested = false) => {
+  const renderAction = (action: Action, index: number, parentPath: number[] = []) => {
     const hasChildren = action.type === "CONDITIONAL" && action.actions?.length > 0;
+    const currentPath = [...parentPath, index];
     
     return (
       <div 
         class="flow-item"
         classList={{ "flow-item--drop-target": dropTarget() === index }}
-        draggable={!isNested}
+        draggable={parentPath.length === 0}
         onDragStart={(e) => handleDragStart(index, e)}
         onDragOver={(e) => handleDragOver(index, e)}
         onDragLeave={handleDragLeave}
         onDragEnd={handleDragEnd}
         onDrop={(e) => handleDrop(index, e)}
       >
+        <button 
+          class="flow-add-button" 
+          onClick={() => props.onAddAction?.(parentPath, index)}
+        >
+          <span class="flow-add-button__icon">+</span>
+        </button>
         <div class="flow-node" classList={{ 
           "flow-node--selected": props.selectedAction === action.name,
           "flow-node--disabled": !action.enabled,
-          "flow-node--draggable": !isNested
+          "flow-node--draggable": parentPath.length === 0
         }}>
           <div class="flow-node__drag-handle">⋮⋮</div>
           <div class="flow-node__content" onClick={() => props.onActionSelect?.(action.name)}>
@@ -127,8 +135,14 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
         <Show when={hasChildren}>
           <div class="flow-branch">
             <For each={action.actions}>
-              {(childAction, i) => renderAction(childAction, i(), true)}
+              {(childAction, i) => renderAction(childAction, i(), currentPath)}
             </For>
+            <button 
+              class="flow-add-button" 
+              onClick={() => props.onAddAction?.(currentPath, action.actions?.length ?? 0)}
+            >
+              <span class="flow-add-button__icon">+</span>
+            </button>
           </div>
         </Show>
       </div>

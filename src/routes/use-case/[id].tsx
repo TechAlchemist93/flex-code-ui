@@ -8,7 +8,12 @@ import "./styles.scss";
 const UseCase = () => {
   const params = useParams<{ id: string }>();
   const [selectedAction, setSelectedAction] = createSignal<string>();
-  const [addingAtIndex, setAddingAtIndex] = createSignal<number>();
+  interface AddActionTarget {
+    path: number[];  // Path to the parent action list (empty for root)
+    index: number;   // Index where to insert the new action
+  }
+  
+  const [addTarget, setAddTarget] = createSignal<AddActionTarget>();
   const [localActions, setLocalActions] = createSignal<Action[]>([]);
   const [hasChanges, setHasChanges] = createSignal(false);
   const [isSaving, setIsSaving] = createSignal(false);
@@ -38,13 +43,26 @@ const UseCase = () => {
     return actions.data.find(action => action.name === selected);
   };
 
-  const handleAddAction = () => {
-    setAddingAtIndex(localActions()?.length ?? 0);
+  const handleAddAction = (path: number[] = [], index: number) => {
+    setAddTarget({ path, index });
+  };
+
+  const getActionListAtPath = (actions: Action[], path: number[]): Action[] => {
+    let current = actions;
+    for (const index of path) {
+      const action = current[index];
+      if (action?.type === "CONDITIONAL" && Array.isArray(action.actions)) {
+        current = action.actions;
+      } else {
+        return [];
+      }
+    }
+    return current;
   };
 
   const handleActionSelect = (action: ActionDetails) => {
-    const index = addingAtIndex();
-    if (index === undefined) return;
+    const target = addTarget();
+    if (!target) return;
 
     const newAction: Action = {
       name: action.name,
@@ -55,10 +73,15 @@ const UseCase = () => {
     };
 
     const updatedActions = [...localActions()];
-    updatedActions.splice(index, 0, newAction);
-    setLocalActions(updatedActions);
-    setHasChanges(true);
-    setAddingAtIndex(undefined);
+    const targetList = getActionListAtPath(updatedActions, target.path);
+    
+    if (targetList) {
+      targetList.splice(target.index, 0, newAction);
+      setLocalActions(updatedActions);
+      setHasChanges(true);
+    }
+    
+    setAddTarget(undefined);
   };
 
   const handleReorder = (fromIndex: number, toIndex: number) => {
@@ -94,37 +117,32 @@ const UseCase = () => {
           <p class="use-case__error">Uh oh! There was an error.</p>
         </Match>
         <Match when={useCase.status === "success"}>
-          <div class="use-case__header">
-            <h1 class="use-case__title">{useCase.data.name}</h1>
-            <Show when={hasChanges()}>
-              <button 
-                class="use-case__save-button" 
-                onClick={handleSave}
-                disabled={isSaving()}
-              >
-                {isSaving() ? 'Saving...' : 'Save Changes'}
-              </button>
-            </Show>
-          </div>
+          <h1 class="use-case__title">{useCase.data.name}</h1>
           <div class="use-case__content">
             <FlowChart 
               actions={localActions()} 
               selectedAction={selectedAction()}
               onActionSelect={setSelectedAction}
               onReorder={handleReorder}
+              onAddAction={handleAddAction}
             />
             <ActionDetails action={selectedActionDetails()} />
           </div>
-          <button class="use-case__add-button" onClick={handleAddAction}>
-            <span class="use-case__add-button-icon">+</span>
-            Add Action
-          </button>
+          <Show when={hasChanges()}>
+            <button 
+              class="use-case__save-button" 
+              onClick={handleSave}
+              disabled={isSaving()}
+            >
+              {isSaving() ? 'Saving...' : 'Save Changes'}
+            </button>
+          </Show>
           <Show when={actions.data}>
             <ActionSelector
               actions={actions.data}
               onSelect={handleActionSelect}
-              onClose={() => setAddingAtIndex(undefined)}
-              isOpen={addingAtIndex() !== undefined}
+              onClose={() => setAddTarget(undefined)}
+              isOpen={addTarget() !== undefined}
             />
           </Show>
         </Match>
