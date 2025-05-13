@@ -1,0 +1,189 @@
+.flow-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  padding: 24px 48px;
+}
+
+.flow-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  width: 100%;
+  padding: 8px 0;
+  transition: padding 0.2s ease;
+
+  &--drop-target {
+    padding: 24px 0;
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #ff3864;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+  }
+}
+
+.flow-node {
+  background: #1a1a1a;
+  border: 1px solid #2de2e6;
+  border-radius: 8px;
+  width: 280px;
+  position: relative;
+  display: flex;
+
+  &--disabled {
+    opacity: 0.5;
+    border-color: #666;
+  }
+
+  &--selected {
+    border-color: #ff3864;
+    background: #1f1f1f;
+  }
+
+  &--draggable {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &__drag-handle {
+    padding: 12px 8px;
+    color: #2de2e6;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+
+    .flow-node--draggable:hover & {
+      opacity: 1;
+    }
+  }
+
+  &__content {
+    flex: 1;
+    padding: 12px 12px 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+
+    &:hover {
+      background: #1f1f1f;
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+
+  &__type {
+    color: #ff3864;
+    font-weight: 500;
+  }
+
+  &__source {
+    color: #2de2e6;
+  }
+
+  &__name {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &__menu-button {
+    padding: 0 12px;
+    background: none;
+    border: none;
+    color: #2de2e6;
+    font-size: 16px;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #ff3864;
+    }
+  }
+
+  &:hover &__menu-button {
+    opacity: 1;
+  }
+
+  &__connector {
+    position: absolute;
+    bottom: -32px;
+    left: 50%;
+    width: 2px;
+    height: 32px;
+    background: #2de2e6;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #2de2e6;
+    }
+  }
+}
+
+.flow-branch {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  margin: 32px 0 0 48px;
+}
+
+.flow-add-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: 1px dashed #2de2e6;
+  border-radius: 50%;
+  color: #2de2e6;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 8px 0;
+  padding: 0;
+  opacity: 0;
+  transition: all 0.2s ease;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+
+  &:hover {
+    background: #1f1f1f;
+    border-color: #ff3864;
+    color: #ff3864;
+  }
+
+  .flow-item:hover > &,
+  .flow-branch:hover > & {
+    opacity: 1;
+  }
+}

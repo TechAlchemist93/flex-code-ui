@@ -1,0 +1,55 @@
+.use-case {
+  padding: 24px 0;
+  margin-left: 240px; // Space for nav
+  margin-right: 320px; // Space for details panel
+  min-height: 100vh;
+  position: relative;
+
+  &__title {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 32px;
+    padding: 0 48px;
+  }
+
+  &__error {
+    padding: 0 48px;
+    color: #ff3864;
+  }
+
+  &__content {
+    position: relative;
+    margin-bottom: 80px;
+  }
+
+  &__save-button {
+    position: fixed;
+    bottom: 24px;
+    right: 368px; // 320px for details panel + 48px padding
+    padding: 12px 24px;
+    background: #2de2e6;
+    border: none;
+    border-radius: 4px;
+    color: #070412;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      background: #ff3864;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #2de2e6;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}

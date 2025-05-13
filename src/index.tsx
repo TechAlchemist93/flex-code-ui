@@ -3,7 +3,6 @@ import { render } from "solid-js/web";
 import "./styles.scss";
 
 import App from "./App";
-import { worker } from "./mocks";
 
 const root = document.getElementById("root");
 
@@ -13,8 +12,4 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-if (import.meta.env.DEV) {
-  worker.start().then(() => render(() => <App />, root!));
-} else {
-  render(() => <App />, root!);
-}
+render(() => <App />, root!);
