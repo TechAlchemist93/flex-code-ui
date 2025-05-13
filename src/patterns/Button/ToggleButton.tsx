@@ -1,6 +1,5 @@
-import { type ParentComponent, type JSX, createSignal, Show } from "solid-js";
-import { Button } from "./index";
-import { Tooltip } from "@kobalte/core";
+import { type ParentComponent, type JSX, createSignal } from "solid-js";
+import { Button } from "./Button";
 
 type Props = {
   initialEnabled?: boolean;
@@ -17,19 +16,13 @@ export const ToggleButton: ParentComponent<Props> = (props) => {
   };
 
   return (
-    <Tooltip.Root>
-      <Tooltip.Trigger>
-        <Button
-          {...props}
-          onClick={handleClick}
-          class={`btn toggle-btn ${enabled() ? "enabled" : "disabled"}`}
-        >
-          <i class="fas fa-power-off" style={{ opacity: enabled() ? "1" : "0.8" }} />
-        </Button>
-      </Tooltip.Trigger>
-      <Tooltip.Content>
-        {enabled() ? "Disable" : "Enable"}
-      </Tooltip.Content>
-    </Tooltip.Root>
+    <Button
+      {...props}
+      onClick={handleClick}
+      class={`btn toggle-btn ${enabled() ? "enabled" : "disabled"}`}
+      title={enabled() ? "Disable" : "Enable"}
+    >
+      <i class="fas fa-power-off" style={{ opacity: enabled() ? "1" : "0.8" }} />
+    </Button>
   );
 };
