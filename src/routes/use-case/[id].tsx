@@ -84,19 +84,6 @@ const UseCase = () => {
     setAddTarget(undefined);
   };
 
-  const getActionListAtPath = (actions: Action[], path: number[]): Action[] => {
-    let current = actions;
-    for (const index of path) {
-      const action = current[index];
-      if (action?.type === "CONDITIONAL" && Array.isArray(action.actions)) {
-        current = action.actions;
-      } else {
-        return [];
-      }
-    }
-    return current;
-  };
-
   const handleReorder = (fromIndex: number, toIndex: number) => {
     const updatedActions = [...localActions()];
     const [movedAction] = updatedActions.splice(fromIndex, 1);
