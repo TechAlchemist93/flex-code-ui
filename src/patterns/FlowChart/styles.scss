@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 32px;
+  gap: 16px;
   padding: 24px 48px;
 }
 
@@ -12,7 +12,7 @@
   align-items: flex-start;
   position: relative;
   width: 100%;
-  padding: 8px 0;
+  padding: 2px 0;
   transition: padding 0.2s ease;
 
   &--drop-target {
@@ -237,23 +237,23 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 32px;
-  margin: 32px 0 0 48px;
+  gap: 16px;
+  margin: 16px 0 0 48px;
 }
 
 .flow-add-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   background: transparent;
   border: 1px dashed #2de2e6;
   border-radius: 50%;
   color: #2de2e6;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
-  margin: 4px 0;
+  margin: 0;
   padding: 0;
   opacity: 0;
   transition: all 0.2s ease;
