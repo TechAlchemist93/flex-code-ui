@@ -166,7 +166,10 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
                 title={action.enabled ? "Disable" : "Enable"}
                 onClick={(e) => {
                   e.stopPropagation();
-                  props.onToggleEnabled?.(parentPath, index);
+                  if (props.onToggleEnabled) {
+                    props.onToggleEnabled(parentPath, index);
+                    console.log('Toggle clicked:', { path: parentPath, index, newState: !action.enabled });
+                  }
                 }}
               >
                 <i class="fas fa-power-off" />

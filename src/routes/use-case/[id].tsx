@@ -51,6 +51,12 @@ const UseCase = () => {
   };
 
   const getActionListAtPath = (actions: Action[], path: number[]): Action[] => {
+    // If path is empty, return the root actions list
+    if (path.length === 0) {
+      return actions;
+    }
+
+    // Otherwise traverse the path
     let current = actions;
     for (const index of path) {
       const action = current[index];
@@ -106,12 +112,16 @@ const UseCase = () => {
   };
 
   const handleToggleEnabled = (path: number[], index: number) => {
+    console.log('Toggle handler called:', { path, index });
     const updatedActions = [...localActions()];
     const targetList = getActionListAtPath(updatedActions, path);
+    console.log('Target list:', targetList);
     if (targetList) {
       const action = targetList[index];
+      console.log('Action to toggle:', action);
       if (action) {
         action.enabled = !action.enabled;
+        console.log('New enabled state:', action.enabled);
         setLocalActions(updatedActions);
         setHasChanges(true);
       }
