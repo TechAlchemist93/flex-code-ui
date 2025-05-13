@@ -94,37 +94,81 @@ const UseCase = () => {
   };
 
   const handleReorder = (fromIndex: number, toIndex: number) => {
-    const updatedActions = [...localActions()];
+    const actions = localActions();
+    const updatedActions = [...actions];
     const [movedAction] = updatedActions.splice(fromIndex, 1);
-    updatedActions.splice(toIndex, 0, movedAction);
+    updatedActions.splice(toIndex, 0, JSON.parse(JSON.stringify(movedAction)));
     setLocalActions(updatedActions);
     setHasChanges(true);
   };
 
   const handleRemoveAction = (path: number[], index: number) => {
-    const updatedActions = [...localActions()];
-    const targetList = getActionListAtPath(updatedActions, path);
-    if (targetList) {
-      targetList.splice(index, 1);
+    const updatedActions = JSON.parse(JSON.stringify(localActions()));
+    
+    // If it's a root-level action
+    if (path.length === 0) {
+      updatedActions.splice(index, 1);
       setLocalActions(updatedActions);
       setHasChanges(true);
+      return;
     }
+    
+    // For nested actions
+    let current = updatedActions;
+    for (let i = 0; i < path.length; i++) {
+      const pathIndex = path[i];
+      if (current[pathIndex]?.type === "CONDITIONAL") {
+        current = current[pathIndex].actions;
+      } else {
+        return;
+      }
+    }
+    
+    current.splice(index, 1);
+    setLocalActions(updatedActions);
+    setHasChanges(true);
   };
 
   const handleToggleEnabled = (path: number[], index: number) => {
     console.log('Toggle handler called:', { path, index });
-    const updatedActions = [...localActions()];
-    const targetList = getActionListAtPath(updatedActions, path);
-    console.log('Target list:', targetList);
-    if (targetList) {
-      const action = targetList[index];
-      console.log('Action to toggle:', action);
-      if (action) {
-        action.enabled = !action.enabled;
-        console.log('New enabled state:', action.enabled);
+    
+    // Create a deep copy of the actions array
+    const updatedActions = JSON.parse(JSON.stringify(localActions()));
+    
+    // If it's a root-level action
+    if (path.length === 0) {
+      if (updatedActions[index]) {
+        updatedActions[index] = {
+          ...updatedActions[index],
+          enabled: !updatedActions[index].enabled
+        };
+        console.log('Toggled root action:', updatedActions[index]);
         setLocalActions(updatedActions);
         setHasChanges(true);
       }
+      return;
+    }
+    
+    // For nested actions
+    let current = updatedActions;
+    for (let i = 0; i < path.length; i++) {
+      const pathIndex = path[i];
+      if (current[pathIndex]?.type === "CONDITIONAL") {
+        current = current[pathIndex].actions;
+      } else {
+        console.log('Invalid path:', path);
+        return;
+      }
+    }
+    
+    if (current[index]) {
+      current[index] = {
+        ...current[index],
+        enabled: !current[index].enabled
+      };
+      console.log('Toggled nested action:', current[index]);
+      setLocalActions(updatedActions);
+      setHasChanges(true);
     }
   };
 
