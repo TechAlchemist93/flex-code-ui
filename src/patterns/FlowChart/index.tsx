@@ -153,16 +153,17 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
             )}
             <div class="flow-node__actions">
               <button 
-                class="btn flow-node__action-btn"
+                class="btn flow-node__action-btn flow-node__action-btn--icon"
+                title="Details"
                 onClick={(e) => {
                   e.stopPropagation();
                   props.onActionSelect?.(action.name);
                 }}
               >
-                Details
+                <i class="fas fa-info-circle" />
               </button>
               <button
-                class={`btn flow-node__action-btn flow-node__action-btn--toggle ${action.enabled ? 'enabled' : 'disabled'}`}
+                class={`btn flow-node__action-btn flow-node__action-btn--icon ${action.enabled ? 'enabled' : 'disabled'}`}
                 title={action.enabled ? "Disable" : "Enable"}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -176,13 +177,14 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
               </button>
               <Show when={action.source === "API"}>
                 <button 
-                  class="btn flow-node__action-btn flow-node__action-btn--remove"
+                  class="btn flow-node__action-btn flow-node__action-btn--icon"
+                  title="Remove"
                   onClick={(e) => {
                     e.stopPropagation();
                     props.onRemoveAction?.(parentPath, index);
                   }}
                 >
-                  Remove
+                  <i class="fas fa-trash" />
                 </button>
               </Show>
             </div>
