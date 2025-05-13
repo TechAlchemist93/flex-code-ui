@@ -257,9 +257,9 @@
   opacity: 0;
   transition: all 0.2s ease;
   position: absolute;
-  left: 50%;
-  top: -10px;
-  transform: translateX(-50%);
+  left: calc(100% + 50px);
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 1;
 
   &:hover {
