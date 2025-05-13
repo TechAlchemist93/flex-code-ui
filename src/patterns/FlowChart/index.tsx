@@ -161,6 +161,16 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
               >
                 Details
               </button>
+              <button
+                class={`btn flow-node__action-btn flow-node__action-btn--toggle ${action.enabled ? 'enabled' : 'disabled'}`}
+                title={action.enabled ? "Disable" : "Enable"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  props.onToggleEnabled?.(parentPath, index);
+                }}
+              >
+                <i class="fas fa-power-off" />
+              </button>
               <Show when={action.source === "API"}>
                 <button 
                   class="btn flow-node__action-btn flow-node__action-btn--remove"

@@ -138,6 +138,34 @@
     font-size: 10px !important;
     padding: 4px 8px !important;
 
+    &--toggle {
+      width: 24px !important;
+      height: 24px !important;
+      padding: 4px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      &.enabled {
+        background: #2ecc71 !important;
+        &:hover {
+          background: darken(#2ecc71, 20%) !important;
+        }
+      }
+
+      &.disabled {
+        background: #e74c3c !important;
+        &:hover {
+          background: darken(#e74c3c, 20%) !important;
+        }
+      }
+
+      i {
+        font-size: 12px !important;
+      }
+    }
+
     &--remove {
       background: #ff3864 !important;
       &:hover {
