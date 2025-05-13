@@ -239,6 +239,16 @@
   align-items: flex-start;
   gap: 32px;
   margin: 32px 0 0 48px;
+  position: relative; /* Add position relative for absolute positioning context */
+  
+  /* Adjust the add button positioning when it's inside a flow-branch */
+  .flow-add-button {
+    top: auto; /* Reset top positioning */
+    transform: none; /* Reset transform */
+    position: relative; /* Change to relative positioning */
+    left: 0; /* Reset left positioning */
+    margin: 0 0 0 -10px; /* Center the button */
+  }
 }
 
 .flow-add-button {
@@ -258,7 +268,7 @@
   transition: all 0.2s ease;
   position: absolute;
   left: calc(100% + 50px);
-  top: 50%;
+  top: calc(50% - 24px); /* Adjust for the padding of the node content */
   transform: translateY(-50%);
   z-index: 1;
 
