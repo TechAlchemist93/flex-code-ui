@@ -15,6 +15,11 @@
   padding: 0;
   transition: padding 0.2s ease;
 
+  /* Ensure the flow-item provides positioning context for the add button */
+  &:hover > .flow-add-button {
+    opacity: 1;
+  }
+
   &--drop-target {
     padding: 24px 0;
     position: relative;
@@ -239,16 +244,7 @@
   align-items: flex-start;
   gap: 32px;
   margin: 32px 0 0 48px;
-  position: relative; /* Add position relative for absolute positioning context */
-  
-  /* Adjust the add button positioning when it's inside a flow-branch */
-  .flow-add-button {
-    top: auto; /* Reset top positioning */
-    transform: none; /* Reset transform */
-    position: relative; /* Change to relative positioning */
-    left: 0; /* Reset left positioning */
-    margin: 0 0 0 -10px; /* Center the button */
-  }
+  position: relative;
 }
 
 .flow-add-button {
@@ -267,8 +263,8 @@
   opacity: 0;
   transition: all 0.2s ease;
   position: absolute;
-  left: calc(100% + 50px);
-  top: calc(50% - 24px); /* Adjust for the padding of the node content */
+  left: calc(100% + 50px); /* Consistently 50px to the right of any flow-item */
+  top: 50%;
   transform: translateY(-50%);
   z-index: 1;
 
@@ -281,5 +277,10 @@
   .flow-item:hover > &,
   .flow-branch:hover > & {
     opacity: 1;
+  }
+
+  /* Special handling for add button in flow-branch */
+  .flow-branch & {
+    top: 0;
   }
 }
