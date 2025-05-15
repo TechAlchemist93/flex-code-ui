@@ -39,12 +39,14 @@
 }
 
 .flow-node {
+  --flow-node-height: 48px;
   background: #1a1a1a;
   border: 1px solid #2de2e6;
   border-radius: 8px;
   width: 280px;
   position: relative;
   display: flex;
+  min-height: var(--flow-node-height);
 
   &--disabled {
     opacity: 0.5;
@@ -267,6 +269,11 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
+
+  /* Position relative to flow-node instead of flow-item */
+  .flow-item > & {
+    top: calc(var(--flow-node-height, 48px) / 2); /* Use half the height of flow-node */
+  }
 
   &:hover {
     background: #1f1f1f;
