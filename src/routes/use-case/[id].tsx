@@ -94,20 +94,28 @@ const UseCase = () => {
   };
 
   const handleReorder = (fromPath: number[], fromIndex: number, toPath: number[], toIndex: number) => {
+    console.log('Reorder:', { fromPath, fromIndex, toPath, toIndex });
+    
     const actions = JSON.parse(JSON.stringify(localActions()));
+    console.log('Before reorder:', JSON.stringify(actions, null, 2));
     
     // Get the source and target action lists
     const sourceList = getActionListAtPath(actions, fromPath);
     const targetList = getActionListAtPath(actions, toPath);
     
-    if (!sourceList || !targetList) return;
+    if (!sourceList || !targetList) {
+      console.error('Invalid source or target list:', { sourceList, targetList });
+      return;
+    }
     
     // Remove from source
     const [movedAction] = sourceList.splice(fromIndex, 1);
+    console.log('Moved action:', movedAction);
     
     // Add to target
     targetList.splice(toIndex, 0, movedAction);
     
+    console.log('After reorder:', JSON.stringify(actions, null, 2));
     setLocalActions(actions);
     setHasChanges(true);
   };

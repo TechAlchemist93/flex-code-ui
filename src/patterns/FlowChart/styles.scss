@@ -13,7 +13,80 @@
   position: relative;
   width: 280px;
   padding: 0;
-  transition: padding 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); /* Custom spring-like easing */
+  will-change: transform, opacity;
+  
+  /* Improve spacing for drop targets */
+  &:not(:last-child) {
+    margin-bottom: 12px;
+  }
+
+  /* Add drop position indicators */
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    left: -24px;
+    right: -24px;
+    height: 2px;
+    background: transparent;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    border-radius: 2px;
+    pointer-events: none;
+    opacity: 0;
+    transform-origin: center;
+  }
+
+  &::before {
+    top: -6px;
+  }
+
+  &::after {
+    bottom: -6px;
+  }
+
+  /* Drop target states */
+  &--drop-target-above::before,
+  &--drop-target-below::after {
+    opacity: 1;
+    background: rgba(45, 226, 230, 0.4);
+    box-shadow: 0 0 12px rgba(45, 226, 230, 0.6);
+    animation: dropLinePulse 1.5s ease-in-out infinite;
+  }
+
+  &--drop-target-above .drop-text {
+    top: -16px;
+  }
+
+  &--drop-target-below .drop-text {
+    bottom: -16px;
+  }
+
+  /* Add transition classes for reordering */
+  &.move-up {
+    animation: moveUpTransition 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+
+  &.move-down {
+    animation: moveDownTransition 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  }
+
+  /* Enhance drop target indicators */
+  .drop-highlight {
+    position: absolute;
+    inset: -8px;
+    border-radius: 8px;
+    pointer-events: none;
+    opacity: 0;
+    z-index: -1;
+    background: linear-gradient(
+      45deg,
+      rgba(45, 226, 230, 0.1),
+      rgba(45, 226, 230, 0.05) 50%,
+      rgba(45, 226, 230, 0.1)
+    );
+    transition: opacity 0.3s ease;
+  }
 
   /* Ensure the flow-item provides positioning context for the add button */
   &:hover > .flow-add-button {
@@ -21,43 +94,144 @@
   }
 
   &--dragging {
-    opacity: 0.6;
-    transform: scale(0.98);
+    opacity: 0.95;
+    transform: scale(1.02) translateY(-2px);
+    z-index: 100;
+    pointer-events: none;
 
     .flow-node {
-      box-shadow: 0 0 0 1px rgba(45, 226, 230, 0.3);
+      box-shadow: 
+        0 12px 32px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(45, 226, 230, 0.4),
+        0 0 48px rgba(45, 226, 230, 0.15);
+      border-color: #2de2e6;
+      background: #1f1f1f;
+      animation: dragPulse 1.5s ease-in-out infinite;
+    }
+
+    .flow-node__drag-handle {
+      cursor: grabbing;
+      background: rgba(45, 226, 230, 0.15);
+      border-color: rgba(45, 226, 230, 0.3);
+      opacity: 1;
+    }
+
+    /* Add a subtle glow effect */
+    &::after {
+      content: "";
+      position: absolute;
+      inset: -12px;
+      background: radial-gradient(
+        circle at center,
+        rgba(45, 226, 230, 0.1) 0%,
+        rgba(45, 226, 230, 0) 70%
+      );
+      pointer-events: none;
+      z-index: -1;
+      animation: glowPulse 1.5s ease-in-out infinite;
     }
   }
 
   &--drop-target {
-    padding: 24px 0;
+    padding: 32px 0;
     position: relative;
+    transform-origin: center;
+    animation: dropTargetPulse 1.5s ease-in-out infinite;
 
-    &::before {
-      content: "";
+    /* Show drop highlight */
+    .drop-highlight {
+      opacity: 1;
+      animation: dropHighlightPulse 1.5s ease-in-out infinite;
+    }
+
+    /* Drop line indicator */
+    .drop-line {
       position: absolute;
       top: 50%;
       left: -24px;
       right: -24px;
-      height: 2px;
-      background: #2de2e6;
-      transform: translateY(-50%);
+      height: 3px;
+      background: linear-gradient(
+        90deg,
+        rgba(45, 226, 230, 0.3),
+        rgba(45, 226, 230, 0.8) 50%,
+        rgba(45, 226, 230, 0.3)
+      );
+      transform: translateY(-50%) scaleX(0);
       pointer-events: none;
       z-index: 1;
-      box-shadow: 0 0 8px rgba(45, 226, 230, 0.5);
+      box-shadow: 
+        0 0 12px rgba(45, 226, 230, 0.6),
+        0 0 24px rgba(45, 226, 230, 0.3);
+      border-radius: 2px;
+      opacity: 0;
+      animation: 
+        dropLineAppear 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards,
+        dropLinePulse 1.5s ease-in-out infinite;
+      backdrop-filter: blur(1px);
     }
 
-    &::after {
-      content: "Drop here";
+    /* Drop text indicator */
+    .drop-text {
       position: absolute;
-      left: -60px;
+      left: -70px;
       top: 50%;
       transform: translateY(-50%);
       color: #2de2e6;
       font-size: 12px;
-      opacity: 0.8;
+      font-weight: 600;
+      opacity: 0.9;
       pointer-events: none;
       white-space: nowrap;
+      text-shadow: 
+        0 0 12px rgba(45, 226, 230, 0.6),
+        0 0 24px rgba(45, 226, 230, 0.3);
+      animation: 
+        dropTextAppear 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards,
+        textPulse 1.5s ease-in-out infinite;
+      z-index: 2;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(1px);
+    }
+
+    /* Add highlight area */
+    .drop-highlight {
+      position: absolute;
+      inset: -8px;
+      background: rgba(45, 226, 230, 0.03);
+      border-radius: 12px;
+      z-index: -1;
+      pointer-events: none;
+      animation: dropAreaPulse 1.5s ease-in-out infinite;
+    }
+
+    /* Style the node during drop */
+    .flow-node {
+      transform: scale(0.98);
+      opacity: 0.85;
+      transition: all 0.3s ease;
+      filter: saturate(0.9);
+      box-shadow: 
+        0 0 0 1px rgba(45, 226, 230, 0.2),
+        0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  /* Add smooth transitions for items being pushed up/down */
+  &:not(.flow-item--dragging) {
+    transform-origin: center;
+    transition: 
+      transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.flow-item--moving-up {
+      animation: moveUpTransition 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    &.flow-item--moving-down {
+      animation: moveDownTransition 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
   }
 }
@@ -100,14 +274,179 @@
   &__drag-handle {
     padding: 12px 8px;
     color: #2de2e6;
-    font-size: 12px;
+    font-size: 14px;
     display: flex;
     align-items: center;
-    opacity: 0.5;
-    transition: opacity 0.2s ease;
+    opacity: 0.6;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: grab;
+    border-radius: 6px;
+    margin-right: 6px;
+    background: rgba(45, 226, 230, 0.05);
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.1),
+      inset 0 0 12px rgba(45, 226, 230, 0.05);
+    backdrop-filter: blur(2px);
+    
+    &:hover {
+      opacity: 1;
+      background: rgba(45, 226, 230, 0.1);
+      box-shadow: 
+        0 0 0 1px rgba(45, 226, 230, 0.2),
+        inset 0 0 16px rgba(45, 226, 230, 0.08);
+      transform: translateX(1px) scale(1.02);
+    }
+    
+    &:active {
+      cursor: grabbing;
+      background: rgba(45, 226, 230, 0.15);
+      box-shadow: 
+        0 0 0 1px rgba(45, 226, 230, 0.3),
+        inset 0 0 20px rgba(45, 226, 230, 0.1);
+      transform: translateX(0) scale(0.98);
+    }
+    background: rgba(45, 226, 230, 0.05);
+    border: 1px solid transparent;
+    position: relative;
+
+    /* Create a grip pattern */
+    .grip-lines {
+      position: relative;
+      width: 12px;
+      height: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      margin: 0 auto;
+
+      &::before,
+      &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: currentColor;
+        border-radius: 1px;
+        box-shadow: 
+          0 -4px 0 currentColor,
+          0 4px 0 currentColor;
+        opacity: 0.8;
+        transition: all 0.2s ease;
+      }
+
+      &::before {
+        top: 25%;
+      }
+
+      &::after {
+        bottom: 25%;
+      }
+    }
+
+    &:hover {
+      background: rgba(45, 226, 230, 0.12);
+      opacity: 1;
+      border-color: rgba(45, 226, 230, 0.25);
+      box-shadow: 
+        0 0 0 1px rgba(45, 226, 230, 0.1),
+        0 2px 8px rgba(45, 226, 230, 0.15);
+      transform: translateX(1px);
+
+      .grip-lines {
+        &::before,
+        &::after {
+          opacity: 1;
+          box-shadow: 
+            0 -4px 0 currentColor,
+            0 4px 0 currentColor,
+            0 0 8px rgba(45, 226, 230, 0.4);
+          transform: scaleX(1.1);
+        }
+      }
+    }
+
+    &:active {
+      cursor: grabbing;
+      background: rgba(45, 226, 230, 0.18);
+      transform: scale(0.95) translateX(1px);
+      border-color: rgba(45, 226, 230, 0.35);
+      box-shadow: 
+        0 0 0 1px rgba(45, 226, 230, 0.15),
+        0 1px 4px rgba(45, 226, 230, 0.2);
+
+      .grip-lines {
+        transform: scale(0.95);
+        
+        &::before,
+        &::after {
+          opacity: 1;
+          box-shadow: 
+            0 -3px 0 currentColor,
+            0 3px 0 currentColor,
+            0 0 12px rgba(45, 226, 230, 0.6);
+        }
+      }
+    }
+
+    /* Add a subtle pulse animation when draggable */
+    .flow-node--draggable:hover & {
+      .grip-lines {
+        animation: gripPulse 2s ease-in-out infinite;
+      }
+    }
 
     .flow-node--draggable:hover & {
+      opacity: 0.8;
+      animation: dragHandleHint 2s ease-in-out infinite;
+    }
+
+    /* Add a subtle tooltip */
+    .tooltip {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: rgba(26, 26, 26, 0.9);
+      color: #2de2e6;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(45, 226, 230, 0.1);
+      
+      &::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-top-color: rgba(26, 26, 26, 0.9);
+      }
+    }
+
+    &:hover .tooltip {
       opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Enhanced animation for drag handle */
+    @keyframes dragHandleHint {
+      0%, 100% {
+        transform: translateX(0);
+        background: rgba(45, 226, 230, 0.05);
+      }
+      50% {
+        transform: translateX(2px);
+        background: rgba(45, 226, 230, 0.1);
+      }
     }
   }
 
@@ -298,35 +637,242 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 32px;
+  gap: 16px;
   margin: 32px 0 0 48px;
   position: relative;
   padding: 24px;
   border-radius: 12px;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 80px; /* Ensure there's always space to drop */
   border: 1px solid transparent;
+  background: rgba(26, 26, 26, 0.4);
 
+  /* Improve hover state */
   &:hover {
-    border-color: rgba(45, 226, 230, 0.1);
+    border-color: rgba(45, 226, 230, 0.15);
+    background: rgba(26, 26, 26, 0.5);
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.05),
+      inset 0 0 48px rgba(45, 226, 230, 0.02);
+  }
+
+  /* Enhanced drop target state */
+  &--drop-target {
+    border-color: rgba(45, 226, 230, 0.4);
+    background: rgba(26, 26, 26, 0.6);
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.2),
+      inset 0 0 64px rgba(45, 226, 230, 0.05),
+      0 4px 24px rgba(45, 226, 230, 0.1);
+    animation: conditionalDropPulse 1.5s ease-in-out infinite;
+    transform-origin: center;
+    backdrop-filter: blur(4px);
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: 14px;
+      background: linear-gradient(
+        45deg,
+        rgba(45, 226, 230, 0.2),
+        rgba(45, 226, 230, 0.05) 50%,
+        rgba(45, 226, 230, 0.2)
+      );
+      background-size: 200% 200%;
+      z-index: -1;
+      pointer-events: none;
+      animation: gradientShift 3s linear infinite;
+      filter: blur(12px);
+      opacity: 0.8;
+    }
+
+    /* Add drop indicators */
+    .drop-line {
+      position: absolute;
+      height: 2px;
+      background: rgba(45, 226, 230, 0.6);
+      box-shadow: 
+        0 0 12px rgba(45, 226, 230, 0.6),
+        0 0 24px rgba(45, 226, 230, 0.3);
+      animation: dropLinePulse 1.5s ease-in-out infinite;
+      transform-origin: center;
+      opacity: 0.8;
+
+      &--top {
+        top: 0;
+        left: 12px;
+        right: 12px;
+        border-radius: 2px 2px 0 0;
+      }
+
+      &--bottom {
+        bottom: 0;
+        left: 12px;
+        right: 12px;
+        border-radius: 0 0 2px 2px;
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: inherit;
+        filter: blur(4px);
+        opacity: 0.5;
+      }
+    }
+
+    /* Add drop text */
+    .drop-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: rgba(45, 226, 230, 0.8);
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      pointer-events: none;
+      text-shadow: 
+        0 0 8px rgba(45, 226, 230, 0.6),
+        0 0 16px rgba(45, 226, 230, 0.3);
+      animation: dropTextPulse 1.5s ease-in-out infinite;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(2px);
+      padding: 6px 12px;
+      border-radius: 4px;
+      background: rgba(26, 26, 26, 0.4);
+      border: 1px solid rgba(45, 226, 230, 0.2);
+    }
+  }
+
+  /* Style nested flow items */
+  .flow-item {
+    margin: 4px 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 
   &--drop-target {
-    background-color: rgba(45, 226, 230, 0.05);
+    background-color: rgba(45, 226, 230, 0.08);
     border-color: #2de2e6;
-    box-shadow: 0 0 0 1px rgba(45, 226, 230, 0.2);
-
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.3),
+      inset 0 0 48px rgba(45, 226, 230, 0.08),
+      0 8px 32px rgba(45, 226, 230, 0.1);
+    animation: conditionalDropTargetPulse 1.5s ease-in-out infinite;
+    transform-origin: center;
+    
+    /* Enhance the drop target appearance */
     &::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: 14px;
+      background: linear-gradient(
+        45deg,
+        rgba(45, 226, 230, 0.1),
+        rgba(45, 226, 230, 0.05) 50%,
+        rgba(45, 226, 230, 0.1)
+      );
+      background-size: 200% 200%;
+      z-index: -1;
+      pointer-events: none;
+      animation: gradientShift 3s linear infinite;
+      filter: blur(4px);
+    }
+
+    /* Add inner glow effect */
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      box-shadow: inset 0 0 32px rgba(45, 226, 230, 0.05);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Drop text indicator */
+    .drop-text {
       content: "Drop here to add to conditional";
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       color: #2de2e6;
-      opacity: 0.5;
+      opacity: 0.9;
       font-size: 14px;
+      font-weight: 500;
       pointer-events: none;
       white-space: nowrap;
+      text-shadow: 0 0 12px rgba(45, 226, 230, 0.6);
+      letter-spacing: 0.5px;
+      animation: textPulse 1.5s ease-in-out infinite;
+      z-index: 2;
+    }
+
+    /* Dashed border */
+    .drop-border {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      border: 2px dashed #2de2e6;
+      opacity: 0.6;
+      pointer-events: none;
+      animation: borderDash 20s linear infinite;
+    }
+
+    /* Add highlight area */
+    .drop-highlight {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      background: rgba(45, 226, 230, 0.03);
+      border-radius: 14px;
+      z-index: 0;
+      pointer-events: none;
+      animation: dropAreaPulse 1.5s ease-in-out infinite;
+    }
+
+    /* Style existing nodes */
+    .flow-node {
+      transform: scale(0.98);
+      opacity: 0.7;
+      transition: all 0.3s ease;
+      filter: saturate(0.8);
+    }
+
+    /* Add drop indicators at top and bottom */
+    .drop-line {
+      content: "";
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      height: 2px;
+      background: rgba(45, 226, 230, 0.3);
+      box-shadow: 0 0 8px rgba(45, 226, 230, 0.4);
+      pointer-events: none;
+
+      &--top {
+        top: 12px;
+      }
+
+      &--bottom {
+        bottom: 12px;
+      }
     }
   }
 
@@ -382,5 +928,944 @@
   /* Special handling for add button in flow-branch */
   .flow-branch & {
     top: 0;
+  }
+}
+
+@keyframes dropTargetPulse {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.02);
+  }
+}
+
+@keyframes dropLinePulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scaleY(1) scaleX(0.98);
+    box-shadow: 
+      0 0 8px rgba(45, 226, 230, 0.3),
+      0 0 2px rgba(45, 226, 230, 0.2);
+    filter: blur(0.5px);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scaleY(1.5) scaleX(1);
+    box-shadow: 
+      0 0 12px rgba(45, 226, 230, 0.5),
+      0 0 4px rgba(45, 226, 230, 0.3);
+    filter: blur(0.8px);
+  }
+}
+
+@keyframes dragHandleHint {
+  0%, 100% {
+    transform: translateX(0) scale(0.98);
+    opacity: 0.6;
+    background: rgba(45, 226, 230, 0.05);
+    filter: brightness(0.95) saturate(0.9);
+    box-shadow: 
+      0 0 4px rgba(45, 226, 230, 0.2),
+      inset 0 0 2px rgba(45, 226, 230, 0.1);
+  }
+  50% {
+    transform: translateX(2px) scale(1);
+    opacity: 0.8;
+    background: rgba(45, 226, 230, 0.1);
+    filter: brightness(1) saturate(1.1);
+    box-shadow: 
+      0 0 8px rgba(45, 226, 230, 0.4),
+      inset 0 0 4px rgba(45, 226, 230, 0.2);
+  }
+}
+
+@keyframes gripPulse {
+  0%, 100% {
+    transform: scale(0.98);
+    opacity: 0.8;
+    filter: brightness(0.95) contrast(0.95);
+    box-shadow: 
+      0 0 4px rgba(45, 226, 230, 0.2),
+      inset 0 0 2px rgba(45, 226, 230, 0.1);
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+    filter: brightness(1) contrast(1.05);
+    box-shadow: 
+      0 0 8px rgba(45, 226, 230, 0.4),
+      inset 0 0 4px rgba(45, 226, 230, 0.2);
+  }
+}
+
+@keyframes conditionalDropPulse {
+  0%, 100% {
+    background: rgba(26, 26, 26, 0.6);
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.2),
+      inset 0 0 64px rgba(45, 226, 230, 0.05);
+    transform: scale(0.98);
+    filter: brightness(0.95) saturate(0.9) blur(0.5px);
+    border-color: rgba(45, 226, 230, 0.3);
+  }
+  50% {
+    background: rgba(26, 26, 26, 0.7);
+    box-shadow: 
+      0 0 0 2px rgba(45, 226, 230, 0.3),
+      inset 0 0 96px rgba(45, 226, 230, 0.08);
+    transform: scale(1.01);
+    filter: brightness(1) saturate(1.1) blur(0);
+    border-color: rgba(45, 226, 230, 0.5);
+  }
+}
+
+@keyframes dropTextPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+    text-shadow: 0 0 8px rgba(45, 226, 230, 0.4);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1.05);
+    text-shadow: 0 0 12px rgba(45, 226, 230, 0.6);
+  }
+}
+
+@keyframes dragPulse {
+  0%, 100% {
+    transform: scale(0.995);
+    box-shadow: 
+      0 12px 32px rgba(0, 0, 0, 0.2),
+      0 0 0 1px rgba(45, 226, 230, 0.4),
+      0 0 48px rgba(45, 226, 230, 0.15),
+      0 4px 24px rgba(45, 226, 230, 0.2);
+    filter: brightness(0.95) saturate(0.9) blur(0.5px);
+    border-color: rgba(45, 226, 230, 0.3);
+  }
+  50% {
+    transform: scale(1.005);
+    box-shadow: 
+      0 16px 40px rgba(0, 0, 0, 0.25),
+      0 0 0 2px rgba(45, 226, 230, 0.5),
+      0 0 64px rgba(45, 226, 230, 0.2),
+      0 8px 32px rgba(45, 226, 230, 0.3);
+    filter: brightness(1.05) saturate(1.1) blur(0);
+    border-color: rgba(45, 226, 230, 0.5);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes dropLineAppear {
+  from {
+    opacity: 0;
+    transform: scaleX(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes dropTextAppear {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes dragShadowFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes moveUpTransition {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-120%);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 1;
+  }
+}
+
+@keyframes moveDownTransition {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(120%);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 1;
+  }
+}
+
+@keyframes dropHighlightPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+    filter: blur(4px);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.02);
+    filter: blur(6px);
+  }
+}
+
+/* Add smooth transitions for conditional blocks */
+.flow-branch {
+  .flow-item {
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    
+    &.move-up {
+      animation: moveUpInConditional 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+    
+    &.move-down {
+      animation: moveDownInConditional 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+  }
+}
+
+@keyframes moveUpInConditional {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    filter: brightness(1) blur(0);
+    box-shadow: none;
+    backdrop-filter: blur(0);
+  }
+  50% {
+    transform: translateY(-150%) scale(0.98);
+    opacity: 0.9;
+    filter: brightness(1.1) saturate(1.1) blur(0.5px);
+    box-shadow: 
+      0 -8px 24px rgba(45, 226, 230, 0.2),
+      0 0 12px rgba(45, 226, 230, 0.1),
+      inset 0 0 16px rgba(45, 226, 230, 0.05);
+    backdrop-filter: blur(1px);
+  }
+  100% {
+    transform: translateY(-100%) scale(1);
+    opacity: 1;
+    filter: brightness(1.05) saturate(1.05) blur(0);
+    box-shadow: 
+      0 -4px 16px rgba(45, 226, 230, 0.15),
+      0 0 8px rgba(45, 226, 230, 0.1);
+  }
+}
+
+@keyframes moveDownInConditional {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    filter: brightness(1) blur(0);
+    box-shadow: none;
+    backdrop-filter: blur(0);
+  }
+  50% {
+    transform: translateY(150%) scale(0.98);
+    opacity: 0.9;
+    filter: brightness(1.1) saturate(1.1) blur(0.5px);
+    box-shadow: 
+      0 8px 24px rgba(45, 226, 230, 0.2),
+      0 0 12px rgba(45, 226, 230, 0.1),
+      inset 0 0 16px rgba(45, 226, 230, 0.05);
+    backdrop-filter: blur(1px);
+  }
+  100% {
+    transform: translateY(100%) scale(1);
+    opacity: 1;
+    filter: brightness(1.05) saturate(1.05) blur(0);
+    box-shadow: 
+      0 4px 16px rgba(45, 226, 230, 0.15),
+      0 0 8px rgba(45, 226, 230, 0.1);
+  }
+}
+
+@keyframes conditionalDropTargetPulse {
+  0%, 100% {
+    transform: scale(1);
+    background: rgba(45, 226, 230, 0.05);
+    backdrop-filter: blur(2px);
+    box-shadow: 
+      inset 0 0 0 1px rgba(45, 226, 230, 0.2),
+      inset 0 0 16px rgba(45, 226, 230, 0.1),
+      0 4px 16px rgba(45, 226, 230, 0.1);
+    filter: brightness(0.95) saturate(0.9);
+  }
+  50% {
+    transform: scale(1.01);
+    background: rgba(45, 226, 230, 0.08);
+    backdrop-filter: blur(4px);
+    box-shadow: 
+      inset 0 0 0 2px rgba(45, 226, 230, 0.3),
+      inset 0 0 24px rgba(45, 226, 230, 0.15),
+      0 8px 24px rgba(45, 226, 230, 0.15);
+    filter: brightness(1.05) saturate(1.1);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+    filter: blur(4px);
+    opacity: 0.6;
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: blur(6px);
+    opacity: 0.8;
+  }
+  100% {
+    background-position: 0% 50%;
+    filter: blur(4px);
+    opacity: 0.6;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Enhanced conditional block styles */
+.flow-branch {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform, opacity, background-color;
+  border-radius: 12px;
+  
+  &:hover {
+    background-color: rgba(45, 226, 230, 0.02);
+  }
+
+  /* Enhance drag target detection area */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    z-index: -1;
+  }
+
+  &--drop-target {
+    animation: conditionalDropTargetPulse 1.5s ease-in-out infinite;
+    background: rgba(45, 226, 230, 0.05);
+    backdrop-filter: blur(2px);
+    box-shadow: 
+      inset 0 0 0 1px rgba(45, 226, 230, 0.2),
+      inset 0 0 16px rgba(45, 226, 230, 0.1),
+      0 4px 16px rgba(45, 226, 230, 0.1);
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: 14px;
+      background: linear-gradient(
+        45deg,
+        rgba(45, 226, 230, 0.15),
+        rgba(45, 226, 230, 0.05) 25%,
+        rgba(45, 226, 230, 0.15) 50%,
+        rgba(45, 226, 230, 0.05) 75%,
+        rgba(45, 226, 230, 0.15)
+      );
+      background-size: 400% 400%;
+      z-index: -1;
+      pointer-events: none;
+      filter: blur(8px);
+      opacity: 0;
+      transform: scale(0.98);
+      animation: 
+        dropTargetAppear 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards,
+        gradientShift 8s ease infinite;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      background: rgba(26, 26, 26, 0.7);
+      z-index: -1;
+      opacity: 0;
+      transform: scale(0.98);
+      animation: dropTargetAppear 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.1s;
+    }
+
+    /* Enhanced drop indicators */
+    .drop-border {
+      position: absolute;
+      inset: -1px;
+      border: 2px dashed rgba(45, 226, 230, 0.3);
+      border-radius: 13px;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.98);
+      animation: 
+        dropTargetAppear 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.2s,
+        borderDash 20s linear infinite;
+    }
+
+    .drop-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: rgba(45, 226, 230, 0.4);
+      box-shadow: 0 0 12px rgba(45, 226, 230, 0.6);
+      pointer-events: none;
+      opacity: 0;
+      transform: scaleX(0);
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        background: rgba(45, 226, 230, 0.2);
+        filter: blur(4px);
+      }
+
+      &--top {
+        top: 0;
+        transform-origin: left center;
+        animation: 
+          dropLineAppear 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.3s,
+          dropLinePulse 2s ease-in-out infinite;
+
+        &::after {
+          content: '';
+          position: absolute;
+          right: 0;
+          top: 50%;
+          width: 4px;
+          height: 4px;
+          background: rgba(45, 226, 230, 0.8);
+          border-radius: 50%;
+          transform: translate(50%, -50%);
+          box-shadow: 0 0 8px rgba(45, 226, 230, 0.6);
+        }
+      }
+
+      &--bottom {
+        bottom: 0;
+        transform-origin: right center;
+        animation: 
+          dropLineAppear 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.4s,
+          dropLinePulse 2s ease-in-out infinite 0.1s;
+
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          width: 4px;
+          height: 4px;
+          background: rgba(45, 226, 230, 0.8);
+          border-radius: 50%;
+          transform: translate(-50%, -50%);
+          box-shadow: 0 0 8px rgba(45, 226, 230, 0.6);
+        }
+      }
+    }
+
+    .drop-text {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      color: rgba(45, 226, 230, 0.6);
+      font-size: 14px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      text-shadow: 0 0 8px rgba(45, 226, 230, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      i {
+        font-size: 16px;
+        opacity: 0.8;
+      }
+      
+      animation: 
+        dropTextAppear 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.5s,
+        dropTextPulse 2s ease-in-out infinite 0.5s;
+        
+      @keyframes dropTextPulse {
+        0%, 100% {
+          opacity: 0.6;
+          transform: translate(-50%, -50%) scale(1);
+          text-shadow: 0 0 8px rgba(45, 226, 230, 0.4);
+        }
+        50% {
+          opacity: 0.8;
+          transform: translate(-50%, -50%) scale(1.02);
+          text-shadow: 0 0 12px rgba(45, 226, 230, 0.6);
+        }
+      }
+    }
+  }
+}
+  }
+}
+
+/* Drag handle enhancements */
+.flow-node__drag-handle {
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  opacity: 0;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  border-radius: 4px;
+  background: rgba(45, 226, 230, 0.05);
+  border: 1px solid rgba(45, 226, 230, 0.1);
+  
+  /* Enhanced touch target */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    z-index: -1;
+  }
+
+  /* Hover state improvements */
+  &:hover {
+    opacity: 1 !important;
+    background: rgba(45, 226, 230, 0.1);
+    border-color: rgba(45, 226, 230, 0.3);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.2),
+      0 2px 8px rgba(45, 226, 230, 0.2);
+  }
+
+  &:hover {
+    opacity: 1;
+    background: rgba(45, 226, 230, 0.1);
+    border-color: rgba(45, 226, 230, 0.2);
+    animation: dragHandleHint 1s ease-in-out infinite;
+  }
+
+  .grip-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 4px;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    &::before,
+    &::after {
+      content: "";
+      width: 8px;
+      height: 1px;
+      background: rgba(45, 226, 230, 0.4);
+      border-radius: 1px;
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 0 4px rgba(45, 226, 230, 0.2);
+    }
+
+    &::before {
+      transform: translateY(1px);
+    }
+
+    &::after {
+      transform: translateY(-1px);
+    }
+
+    .flow-node__drag-handle:hover & {
+      gap: 4px;
+      
+      &::before,
+      &::after {
+        width: 10px;
+        background: rgba(45, 226, 230, 0.6);
+        box-shadow: 0 0 6px rgba(45, 226, 230, 0.4);
+      }
+      
+      &::before {
+        transform: translateY(2px);
+      }
+      
+      &::after {
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  .tooltip {
+    position: absolute;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%) translateX(-8px);
+    background: rgba(26, 26, 26, 0.95);
+    color: rgba(45, 226, 230, 0.8);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    border: 1px solid rgba(45, 226, 230, 0.2);
+    backdrop-filter: blur(4px);
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.2),
+      0 0 0 1px rgba(45, 226, 230, 0.1),
+      0 0 24px rgba(45, 226, 230, 0.1);
+    
+    .flow-node__drag-handle:hover & {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: -4px;
+      top: 50%;
+      transform: translateY(-50%) rotate(45deg);
+      width: 8px;
+      height: 8px;
+      background: inherit;
+      border-left: 1px solid rgba(45, 226, 230, 0.2);
+      border-bottom: 1px solid rgba(45, 226, 230, 0.2);
+    }
+  }
+}
+
+/* Show drag handle on hover */
+.flow-node:hover .flow-node__drag-handle {
+  opacity: 0.6;
+}
+
+/* Active drag handle state */
+.flow-item--dragging .flow-node__drag-handle {
+  cursor: grabbing;
+  opacity: 1;
+  background: rgba(45, 226, 230, 0.15);
+  border-color: rgba(45, 226, 230, 0.3);
+  transform: scale(1.05);
+  box-shadow: 
+    0 0 0 2px rgba(45, 226, 230, 0.3),
+    inset 0 0 24px rgba(45, 226, 230, 0.1);
+  filter: brightness(1.1) saturate(1.2);
+
+  .grip-lines {
+    &::before,
+    &::after {
+      background: rgba(45, 226, 230, 0.8);
+      box-shadow: 0 0 8px rgba(45, 226, 230, 0.6);
+    }
+  }
+}
+
+/* Animation keyframes */
+@keyframes dropTargetAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dropLineAppear {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes dropTextAppear {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes dropTextPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(0.98);
+    text-shadow: 0 0 8px rgba(45, 226, 230, 0.4);
+    letter-spacing: normal;
+    filter: blur(0.2px);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.02);
+    text-shadow: 
+      0 0 12px rgba(45, 226, 230, 0.6),
+      0 0 24px rgba(45, 226, 230, 0.2);
+    letter-spacing: 0.5px;
+    filter: blur(0);
+  }
+}
+
+@keyframes dropLinePulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scaleY(1) scaleX(0.98);
+    filter: blur(0.5px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scaleY(1.5) scaleX(1);
+    filter: blur(1px);
+  }
+}
+
+@keyframes borderDash {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+@keyframes conditionalDropTargetPulse {
+  0%, 100% {
+    background-color: rgba(45, 226, 230, 0.05);
+    transform: scale(0.995);
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.2),
+      inset 0 0 48px rgba(45, 226, 230, 0.05),
+      0 4px 16px rgba(45, 226, 230, 0.1);
+    filter: saturate(0.9) brightness(0.95) blur(0.5px);
+    border-color: rgba(45, 226, 230, 0.2);
+    backdrop-filter: blur(2px);
+  }
+  50% {
+    background-color: rgba(45, 226, 230, 0.12);
+    transform: scale(1.005);
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.3),
+      inset 0 0 64px rgba(45, 226, 230, 0.08),
+      0 8px 32px rgba(45, 226, 230, 0.15);
+    filter: saturate(1.1) brightness(1.05);
+    backdrop-filter: blur(1px);
+  }
+}
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.2),
+      inset 0 0 32px rgba(45, 226, 230, 0.05),
+      0 4px 24px rgba(45, 226, 230, 0.08);
+    transform: scale(1);
+  }
+  50% {
+    background-color: rgba(45, 226, 230, 0.08);
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.3),
+      inset 0 0 48px rgba(45, 226, 230, 0.08),
+      0 8px 32px rgba(45, 226, 230, 0.12);
+    transform: scale(1.005);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 0%;
+    opacity: 0.5;
+    filter: blur(8px) brightness(0.95);
+    transform: scale(0.995);
+  }
+  25% {
+    opacity: 0.8;
+    filter: blur(6px) brightness(1);
+    transform: scale(1);
+  }
+  50% {
+    background-position: 100% 100%;
+    opacity: 0.5;
+    filter: blur(8px) brightness(0.95);
+    transform: scale(0.995);
+  }
+  75% {
+    opacity: 0.8;
+    filter: blur(6px) brightness(1);
+    transform: scale(1);
+  }
+  100% {
+    background-position: 0% 0%;
+    opacity: 0.5;
+    filter: blur(8px) brightness(0.95);
+    transform: scale(0.995);
+    opacity: 0.5;
+  }
+}
+
+@keyframes borderDash {
+  0% {
+    border-style: dashed;
+    border-width: 2px;
+    border-dasharray: 8 8;
+  }
+  50% {
+    border-style: dashed;
+    border-width: 2px;
+    border-dasharray: 12 6;
+  }
+  100% {
+    border-style: dashed;
+    border-width: 2px;
+    border-dasharray: 8 8;
+  }
+}
+
+@keyframes textPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translateY(-50%) scale(0.98);
+    filter: brightness(0.95) blur(0.5px);
+    text-shadow: 
+      0 0 12px rgba(45, 226, 230, 0.4),
+      0 0 24px rgba(45, 226, 230, 0.2);
+    letter-spacing: 0.5px;
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.02);
+    filter: brightness(1.05) blur(0px);
+    text-shadow: 
+      0 0 16px rgba(45, 226, 230, 0.6),
+      0 0 32px rgba(45, 226, 230, 0.3);
+    letter-spacing: 0.75px;
+  }
+    opacity: 1;
+    text-shadow: 
+      0 0 16px rgba(45, 226, 230, 0.8),
+      0 0 32px rgba(45, 226, 230, 0.4);
+    letter-spacing: 1px;
+    transform: translateY(-50%) scale(1.02);
+    filter: brightness(1.05) blur(0);
+    transform: translateY(-50%) scale(1.02);
+  }
+}
+
+@keyframes dragPulse {
+  0%, 100% {
+    transform: scale(0.995);
+    box-shadow: 
+      0 12px 32px rgba(0, 0, 0, 0.2),
+      0 0 0 1px rgba(45, 226, 230, 0.4),
+      0 0 48px rgba(45, 226, 230, 0.15),
+      0 4px 24px rgba(45, 226, 230, 0.2);
+    filter: brightness(0.95) saturate(0.9) blur(0.5px);
+    border-color: rgba(45, 226, 230, 0.3);
+  }
+  50% {
+    transform: scale(1.005);
+    box-shadow: 
+      0 16px 40px rgba(0, 0, 0, 0.25),
+      0 0 0 2px rgba(45, 226, 230, 0.5),
+      0 0 64px rgba(45, 226, 230, 0.2),
+      0 8px 32px rgba(45, 226, 230, 0.3);
+    filter: brightness(1.05) saturate(1.1) blur(0);
+    border-color: rgba(45, 226, 230, 0.5);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes moveUpTransition {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes moveDownTransition {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(4px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes dropAreaPulse {
+  0%, 100% {
+    background: rgba(45, 226, 230, 0.03);
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.1),
+      inset 0 0 32px rgba(45, 226, 230, 0.03);
+  }
+  50% {
+    background: rgba(45, 226, 230, 0.05);
+    box-shadow: 
+      0 0 0 1px rgba(45, 226, 230, 0.2),
+      inset 0 0 48px rgba(45, 226, 230, 0.05);
   }
 }
