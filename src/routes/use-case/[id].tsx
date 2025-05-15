@@ -129,20 +129,14 @@ const UseCase = () => {
     setHasChanges(true);
   };
 
-  const handleToggleEnabled = (path: number[], index: number) => {
-    console.log('Toggle handler called:', { path, index });
-    
-    // Create a deep copy of the actions array
+  const updateActionAtPath = (path: number[], index: number, updater: (action: Action) => void) => {
     const updatedActions = JSON.parse(JSON.stringify(localActions()));
     
     // If it's a root-level action
     if (path.length === 0) {
       if (updatedActions[index]) {
-        updatedActions[index] = {
-          ...updatedActions[index],
-          enabled: !updatedActions[index].enabled
-        };
-        console.log('Toggled root action:', updatedActions[index]);
+        const action = updatedActions[index];
+        updater(action);
         setLocalActions(updatedActions);
         setHasChanges(true);
       }
@@ -162,14 +156,27 @@ const UseCase = () => {
     }
     
     if (current[index]) {
-      current[index] = {
-        ...current[index],
-        enabled: !current[index].enabled
-      };
-      console.log('Toggled nested action:', current[index]);
+      const action = current[index];
+      updater(action);
       setLocalActions(updatedActions);
       setHasChanges(true);
     }
+  };
+
+  const handleToggleEnabled = (path: number[], index: number) => {
+    console.log('Toggle handler called:', { path, index });
+    updateActionAtPath(path, index, (action) => {
+      action.enabled = !action.enabled;
+    });
+  };
+
+  const handleParamChange = (path: number[], index: number, paramKey: string, value: string) => {
+    updateActionAtPath(path, index, (action) => {
+      if (!action.params) {
+        action.params = {};
+      }
+      action.params[paramKey] = value;
+    });
   };
 
   const handleSave = async () => {
@@ -210,6 +217,7 @@ const UseCase = () => {
               onAddAction={handleAddAction}
               onRemoveAction={handleRemoveAction}
               onToggleEnabled={handleToggleEnabled}
+              onParamChange={handleParamChange}
             />
             <ActionDetailsModal 
               action={selectedActionDetails()}
