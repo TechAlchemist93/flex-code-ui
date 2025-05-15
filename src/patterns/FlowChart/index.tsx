@@ -45,6 +45,7 @@ interface FlowChartProps {
   onRemoveAction?: (path: number[], index: number) => void;
   onToggleEnabled?: (path: number[], index: number) => void;
   onParamChange?: (path: number[], index: number, paramKey: string, value: string) => void;
+  onParamSave?: (path: number[], index: number, params: Record<string, string>) => void;
 }
 
 interface MenuState {
@@ -54,10 +55,17 @@ interface MenuState {
   index: number;
 }
 
+interface EditedParams {
+  path: number[];
+  index: number;
+  params: Record<string, string>;
+}
+
 export const FlowChart: Component<FlowChartProps> = (props) => {
   let draggedIndex: number | null = null;
   const [dropTarget, setDropTarget] = createSignal<number | null>(null);
   const [menuState, setMenuState] = createSignal<MenuState>();
+  const [editedParams, setEditedParams] = createSignal<EditedParams | null>(null);
   let dropTimeout: number;
 
   const handleDragStart = (index: number, e: DragEvent) => {
@@ -144,21 +152,58 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
             <div class="flow-node__name">{action.name}</div>
             {action.type === "FUNCTION" && action.params && (
               <div class="flow-node__key-values">
-                {Object.entries(action.params).map(([key, value]) => (
-                  <div class="flow-node__key-value">
-                    <span class="flow-node__key">{key}:</span>
-                    <input
-                      type="text"
-                      class="flow-node__value-input"
-                      value={value}
-                      onChange={(e) => {
+                {Object.entries(action.params).map(([key, value]) => {
+                  const edited = editedParams()?.path.join(',') === parentPath.join(',') && 
+                               editedParams()?.index === index;
+                  const editedValue = edited ? editedParams()?.params[key] : value;
+                  
+                  return (
+                    <div class="flow-node__key-value">
+                      <span class="flow-node__key">{key}:</span>
+                      <input
+                        type="text"
+                        class="flow-node__value-input"
+                        value={editedValue}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          const currentEdited = editedParams();
+                          const newParams = currentEdited?.path.join(',') === parentPath.join(',') && 
+                                         currentEdited?.index === index
+                            ? { ...currentEdited.params }
+                            : { ...action.params };
+                          
+                          newParams[key] = e.currentTarget.value;
+                          setEditedParams({
+                            path: parentPath,
+                            index,
+                            params: newParams
+                          });
+                          
+                          props.onParamChange?.(parentPath, index, key, e.currentTarget.value);
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  );
+                })}
+                <Show when={editedParams()?.path.join(',') === parentPath.join(',') && 
+                           editedParams()?.index === index}>
+                  <div class="flow-node__param-actions">
+                    <button
+                      class="flow-node__save-btn"
+                      onClick={(e) => {
                         e.stopPropagation();
-                        props.onParamChange?.(parentPath, index, key, e.currentTarget.value);
+                        const edited = editedParams();
+                        if (edited) {
+                          props.onParamSave?.(edited.path, edited.index, edited.params);
+                          setEditedParams(null);
+                        }
                       }}
-                      onClick={(e) => e.stopPropagation()}
-                    />
+                    >
+                      Save Changes
+                    </button>
                   </div>
-                ))}
+                </Show>
               </div>
             )}
             <div class="flow-node__actions">
