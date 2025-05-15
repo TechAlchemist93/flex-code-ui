@@ -93,12 +93,22 @@ const UseCase = () => {
     setAddTarget(undefined);
   };
 
-  const handleReorder = (fromIndex: number, toIndex: number) => {
-    const actions = localActions();
-    const updatedActions = [...actions];
-    const [movedAction] = updatedActions.splice(fromIndex, 1);
-    updatedActions.splice(toIndex, 0, JSON.parse(JSON.stringify(movedAction)));
-    setLocalActions(updatedActions);
+  const handleReorder = (fromPath: number[], fromIndex: number, toPath: number[], toIndex: number) => {
+    const actions = JSON.parse(JSON.stringify(localActions()));
+    
+    // Get the source and target action lists
+    const sourceList = getActionListAtPath(actions, fromPath);
+    const targetList = getActionListAtPath(actions, toPath);
+    
+    if (!sourceList || !targetList) return;
+    
+    // Remove from source
+    const [movedAction] = sourceList.splice(fromIndex, 1);
+    
+    // Add to target
+    targetList.splice(toIndex, 0, movedAction);
+    
+    setLocalActions(actions);
     setHasChanges(true);
   };
 

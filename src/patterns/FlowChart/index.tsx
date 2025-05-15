@@ -40,7 +40,7 @@ interface FlowChartProps {
   actions: Action[];
   selectedAction?: string;
   onActionSelect?: (name: string) => void;
-  onReorder?: (fromIndex: number, toIndex: number) => void;
+  onReorder?: (fromPath: number[], fromIndex: number, toPath: number[], toIndex: number) => void;
   onAddAction?: (path: number[], index: number) => void;
   onRemoveAction?: (path: number[], index: number) => void;
   onToggleEnabled?: (path: number[], index: number) => void;
@@ -56,23 +56,60 @@ interface MenuState {
 }
 
 export const FlowChart: Component<FlowChartProps> = (props) => {
-  let draggedIndex: number | null = null;
-  const [dropTarget, setDropTarget] = createSignal<number | null>(null);
+  interface DragState {
+    path: number[];
+    index: number;
+  }
+  
+  interface DropTarget {
+    path: number[];
+    index: number;
+    type: 'position' | 'container';
+  }
+  
+  let draggedState: DragState | null = null;
+  const [dropTarget, setDropTarget] = createSignal<DropTarget | null>(null);
   const [menuState, setMenuState] = createSignal<MenuState>();
   let dropTimeout: number;
 
-  const handleDragStart = (index: number, e: DragEvent) => {
-    draggedIndex = index;
+  const [draggingNodeId, setDraggingNodeId] = createSignal<string | null>(null);
+
+  const isDescendant = (parentPath: number[], parentIndex: number, childPath: number[], childIndex: number): boolean => {
+    // Check if childPath starts with parentPath + parentIndex
+    const parentFullPath = [...parentPath, parentIndex];
+    return childPath.length > parentFullPath.length && 
+           parentFullPath.every((v, i) => childPath[i] === v);
+  };
+
+  const handleDragStart = (path: number[], index: number, e: DragEvent, actionName: string) => {
+    draggedState = { path, index };
+    setDraggingNodeId(actionName);
     if (e.dataTransfer) {
       e.dataTransfer.effectAllowed = 'move';
     }
   };
 
-  const handleDragOver = (index: number, e: DragEvent) => {
+  const handleDragOver = (path: number[], index: number, e: DragEvent, isContainer: boolean = false) => {
     e.preventDefault();
-    if (e.dataTransfer) {
-      e.dataTransfer.dropEffect = 'move';
+    if (!draggedState) return;
+
+    // Prevent dropping into descendants of the dragged item
+    if (isDescendant(draggedState.path, draggedState.index, path, index)) {
+      e.dataTransfer!.dropEffect = 'none';
+      return;
     }
+
+    // Prevent dropping into itself
+    const isSameLocation = draggedState.path.length === path.length && 
+      draggedState.path.every((v, i) => v === path[i]) && 
+      draggedState.index === index;
+    
+    if (isSameLocation) {
+      e.dataTransfer!.dropEffect = 'none';
+      return;
+    }
+
+    e.dataTransfer!.dropEffect = 'move';
     
     // Clear any existing timeout
     if (dropTimeout) {
@@ -81,9 +118,11 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
 
     // Set a new timeout to show the drop target after a short delay
     dropTimeout = window.setTimeout(() => {
-      if (draggedIndex !== null && draggedIndex !== index) {
-        setDropTarget(index);
-      }
+      setDropTarget({ 
+        path, 
+        index, 
+        type: isContainer ? 'container' : 'position' 
+      });
     }, 200);
   };
 
@@ -94,12 +133,28 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
     setDropTarget(null);
   };
 
-  const handleDrop = (index: number, e: DragEvent) => {
+  const handleDrop = (path: number[], index: number, e: DragEvent, isContainer: boolean = false) => {
     e.preventDefault();
-    if (draggedIndex !== null && draggedIndex !== index) {
-      props.onReorder?.(draggedIndex, index);
+    if (!draggedState) return;
+
+    const isSameLocation = draggedState.path.length === path.length && 
+      draggedState.path.every((v, i) => v === path[i]) && 
+      draggedState.index === index;
+
+    if (!isSameLocation) {
+      if (isContainer) {
+        // When dropping into a conditional block, append to the end of its actions array
+        const targetPath = [...path, index];
+        const targetIndex = props.actions[index]?.type === "CONDITIONAL" 
+          ? (props.actions[index] as ConditionalAction).actions.length 
+          : 0;
+        props.onReorder?.(draggedState.path, draggedState.index, targetPath, targetIndex);
+      } else {
+        props.onReorder?.(draggedState.path, draggedState.index, path, index);
+      }
     }
-    draggedIndex = null;
+    
+    draggedState = null;
     setDropTarget(null);
   };
 
@@ -107,7 +162,9 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
     if (dropTimeout) {
       window.clearTimeout(dropTimeout);
     }
+    draggedState = null;
     setDropTarget(null);
+    setDraggingNodeId(null);
   };
 
   const renderAction = (action: Action, index: number, parentPath: number[] = []) => {
@@ -117,13 +174,23 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
     return (
       <div 
         class="flow-item"
-        classList={{ "flow-item--drop-target": dropTarget() === index }}
-        draggable={parentPath.length === 0}
-        onDragStart={(e) => handleDragStart(index, e)}
-        onDragOver={(e) => handleDragOver(index, e)}
+        classList={{ 
+          "flow-item--drop-target": (() => {
+            const target = dropTarget();
+            return target !== null && 
+              target.type === 'position' &&
+              target.path.length === parentPath.length && 
+              target.path.every((v, i) => v === parentPath[i]) && 
+              target.index === index;
+          })(),
+          "flow-item--dragging": draggingNodeId() === action.name
+        }}
+        draggable={true}
+        onDragStart={(e) => handleDragStart(parentPath, index, e, action.name)}
+        onDragOver={(e) => handleDragOver(parentPath, index, e)}
         onDragLeave={handleDragLeave}
         onDragEnd={handleDragEnd}
-        onDrop={(e) => handleDrop(index, e)}
+        onDrop={(e) => handleDrop(parentPath, index, e)}
       >
         <button 
           class="flow-add-button" 
@@ -134,7 +201,7 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
         <div class="flow-node" classList={{ 
           "flow-node--selected": props.selectedAction === action.name,
           "flow-node--disabled": !action.enabled,
-          "flow-node--draggable": parentPath.length === 0
+          "flow-node--draggable": true
         }}>
           <div class="flow-node__drag-handle">⋮⋮</div>
           <div class="flow-node__content">
@@ -203,7 +270,22 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
           </div>
         </div>
         <Show when={hasChildren}>
-          <div class="flow-branch">
+          <div 
+            class="flow-branch"
+            classList={{
+              "flow-branch--drop-target": (() => {
+                const target = dropTarget();
+                return target !== null && 
+                  target.type === 'container' &&
+                  target.path.length === parentPath.length && 
+                  target.path.every((v, i) => v === parentPath[i]) && 
+                  target.index === index;
+              })()
+            }}
+            onDragOver={(e) => handleDragOver(parentPath, index, e, true)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(parentPath, index, e, true)}
+          >
             <For each={action.actions}>
               {(childAction, i) => renderAction(childAction, i(), currentPath)}
             </For>
