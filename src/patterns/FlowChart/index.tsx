@@ -44,6 +44,7 @@ interface FlowChartProps {
   onAddAction?: (path: number[], index: number) => void;
   onRemoveAction?: (path: number[], index: number) => void;
   onToggleEnabled?: (path: number[], index: number) => void;
+  onParamChange?: (path: number[], index: number, paramKey: string, value: string) => void;
 }
 
 interface MenuState {
@@ -146,7 +147,16 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
                 {Object.entries(action.params).map(([key, value]) => (
                   <div class="flow-node__key-value">
                     <span class="flow-node__key">{key}:</span>
-                    <span class="flow-node__value">{value}</span>
+                    <input
+                      type="text"
+                      class="flow-node__value-input"
+                      value={value}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        props.onParamChange?.(parentPath, index, key, e.currentTarget.value);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
                   </div>
                 ))}
               </div>

@@ -136,6 +136,27 @@
     color: #ff3864;
   }
 
+  &__value-input {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #ff3864;
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    width: 100%;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: #2de2e6;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #ff3864;
+      background: rgba(255, 56, 100, 0.1);
+    }
+  }
+
   &__actions {
     display: flex;
     gap: 8px;
