@@ -11,9 +11,23 @@
   flex-direction: column;
   align-items: flex-start;
   position: relative;
-  width: 100%;
+  width: 280px;
   padding: 0;
   transition: padding 0.2s ease;
+
+  /* Ensure the flow-item provides positioning context for the add button */
+  &:hover > .flow-add-button {
+    opacity: 1;
+  }
+
+  &--dragging {
+    opacity: 0.6;
+    transform: scale(0.98);
+
+    .flow-node {
+      box-shadow: 0 0 0 1px rgba(45, 226, 230, 0.3);
+    }
+  }
 
   &--drop-target {
     padding: 24px 0;
@@ -23,23 +37,46 @@
       content: "";
       position: absolute;
       top: 50%;
-      left: 0;
-      right: 0;
+      left: -24px;
+      right: -24px;
       height: 2px;
-      background: #ff3864;
+      background: #2de2e6;
       transform: translateY(-50%);
       pointer-events: none;
+      z-index: 1;
+      box-shadow: 0 0 8px rgba(45, 226, 230, 0.5);
+    }
+
+    &::after {
+      content: "Drop here";
+      position: absolute;
+      left: -60px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #2de2e6;
+      font-size: 12px;
+      opacity: 0.8;
+      pointer-events: none;
+      white-space: nowrap;
     }
   }
 }
 
 .flow-node {
+  --flow-node-height: 48px;
   background: #1a1a1a;
   border: 1px solid #2de2e6;
   border-radius: 8px;
   width: 280px;
   position: relative;
   display: flex;
+  min-height: var(--flow-node-height);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+
+  &--dragging {
+    opacity: 0.6;
+    transform: scale(0.98);
+  }
 
   &--disabled {
     opacity: 0.5;
@@ -56,6 +93,7 @@
 
     &:active {
       cursor: grabbing;
+      z-index: 2; /* Ensure dragged item appears above other items */
     }
   }
 
@@ -128,6 +166,29 @@
   &__value {
     color: #ff3864;
   }
+
+  &__value-input {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #ff3864;
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    width: 100%;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: #2de2e6;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #ff3864;
+      background: rgba(255, 56, 100, 0.1);
+    }
+  }
+
+
 
   &__actions {
     display: flex;
@@ -239,6 +300,46 @@
   align-items: flex-start;
   gap: 32px;
   margin: 32px 0 0 48px;
+  position: relative;
+  padding: 24px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  min-height: 80px; /* Ensure there's always space to drop */
+  border: 1px solid transparent;
+
+  &:hover {
+    border-color: rgba(45, 226, 230, 0.1);
+  }
+
+  &--drop-target {
+    background-color: rgba(45, 226, 230, 0.05);
+    border-color: #2de2e6;
+    box-shadow: 0 0 0 1px rgba(45, 226, 230, 0.2);
+
+    &::before {
+      content: "Drop here to add to conditional";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #2de2e6;
+      opacity: 0.5;
+      font-size: 14px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+  }
+
+  &:empty::before {
+    content: "Empty conditional";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(45, 226, 230, 0.3);
+    font-size: 14px;
+    pointer-events: none;
+  }
 }
 
 .flow-add-button {
@@ -257,10 +358,15 @@
   opacity: 0;
   transition: all 0.2s ease;
   position: absolute;
-  left: 50%;
-  top: -10px;
-  transform: translateX(-50%);
+  left: calc(100% + 50px); /* Consistently 50px to the right of any flow-item */
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 1;
+
+  /* Position relative to flow-node instead of flow-item */
+  .flow-item > & {
+    top: calc(var(--flow-node-height, 48px) / 2); /* Use half the height of flow-node */
+  }
 
   &:hover {
     background: #1f1f1f;
@@ -271,5 +377,10 @@
   .flow-item:hover > &,
   .flow-branch:hover > & {
     opacity: 1;
+  }
+
+  /* Special handling for add button in flow-branch */
+  .flow-branch & {
+    top: 0;
   }
 }
