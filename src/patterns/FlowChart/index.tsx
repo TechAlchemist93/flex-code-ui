@@ -168,9 +168,10 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
     setDraggingNodeId(null);
   };
 
-  const renderAction = (action: Action, index: number, parentPath: number[] = []) => {
+  const renderAction = (action: Action, index: number, parentPath: number[] = [], parentDisabled: boolean = false) => {
     const hasChildren = action.type === "CONDITIONAL" && action.actions?.length > 0;
     const currentPath = [...parentPath, index];
+    const isParentDisabled = parentDisabled || (!action.enabled && action.type === "CONDITIONAL");
     
     return (
       <div 
@@ -202,6 +203,7 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
         <div class="flow-node" classList={{ 
           "flow-node--selected": props.selectedAction === action.name,
           "flow-node--disabled": !action.enabled,
+          "flow-node--parent-disabled": isParentDisabled && action.enabled,
           "flow-node--draggable": true
         }}>
           <div class="flow-node__drag-handle">⋮⋮</div>
@@ -310,7 +312,7 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
             onDrop={(e) => handleDrop(parentPath, index, e, true)}
           >
             <For each={action.actions}>
-              {(childAction, i) => renderAction(childAction, i(), currentPath)}
+              {(childAction, i) => renderAction(childAction, i(), currentPath, isParentDisabled)}
             </For>
             <button 
               class="flow-add-button" 
@@ -330,7 +332,7 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
   return (
     <div class="flow-chart">
       <For each={props.actions}>
-        {(action, i) => renderAction(action, i())}
+        {(action, i) => renderAction(action, i(), [], false)}
       </For>
       <Show when={menu && menuAction}>
         <ActionMenu
