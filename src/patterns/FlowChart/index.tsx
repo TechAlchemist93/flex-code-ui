@@ -39,6 +39,7 @@ const FlowChartNode: Component<FlowChartNodeProps> = (props) => {
 interface FlowChartProps {
   actions: Action[];
   selectedAction?: string;
+  availableActions?: ActionDetails[];  // List of available actions from the API
   onActionSelect?: (name: string) => void;
   onReorder?: (fromPath: number[], fromIndex: number, toPath: number[], toIndex: number) => void;
   onAddAction?: (path: number[], index: number) => void;
@@ -210,23 +211,45 @@ export const FlowChart: Component<FlowChartProps> = (props) => {
               <span class="flow-node__source">{action.source}</span>
             </div>
             <div class="flow-node__name">{action.name}</div>
-            {action.type === "FUNCTION" && action.params && (
+            {action.type === "FUNCTION" && (
               <div class="flow-node__key-values">
-                {Object.entries(action.params).map(([key, value]) => (
-                  <div class="flow-node__key-value">
-                    <span class="flow-node__key">{key}:</span>
-                    <input
-                      type="text"
-                      class="flow-node__value-input"
-                      value={value}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        props.onParamChange?.(parentPath, index, key, e.currentTarget.value);
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </div>
-                ))}
+                {(() => {
+                  // Find the action details from available actions
+                  const actionDetails = props.availableActions?.find(a => a.name === action.name) as FunctionDetails | undefined;
+                  if (!actionDetails) return null;
+
+                  // Get all parameters that should be displayed
+                  const allParams = actionDetails.params.map(param => ({
+                    name: param.name,
+                    required: !param.nullable,
+                    value: action.params?.[param.name] ?? null,
+                    type: param.type
+                  }));
+
+                  return allParams.map(param => {
+                    const isEmpty = param.value === null || param.value === '';
+                    
+                    return (
+                      <div class="flow-node__key-value" classList={{ 'required': param.required, 'empty': isEmpty }}>
+                        <span class="flow-node__key" title={`Type: ${param.type}`}>
+                          {param.name}:
+                        </span>
+                        <input
+                          type="text"
+                          class="flow-node__value-input"
+                          classList={{ 'error': param.required && isEmpty }}
+                          value={param.value || ''}
+                          placeholder={param.required ? 'Required' : 'Optional'}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            props.onParamChange?.(parentPath, index, param.name, e.currentTarget.value);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             )}
             <div class="flow-node__actions">

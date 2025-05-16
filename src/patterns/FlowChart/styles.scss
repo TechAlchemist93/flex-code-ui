@@ -156,11 +156,28 @@
   &__key-value {
     display: flex;
     gap: 8px;
+    align-items: center;
+
+    &.required .flow-node__key::after {
+      content: "*";
+      color: #ff3864;
+      margin-left: 2px;
+    }
+
+    &.empty.required .flow-node__value-input {
+      border-color: #ff3864;
+      background: rgba(255, 56, 100, 0.1);
+
+      &::placeholder {
+        color: rgba(255, 56, 100, 0.5);
+      }
+    }
   }
 
   &__key {
     color: #2de2e6;
     font-weight: 500;
+    min-width: 80px;
   }
 
   &__value {

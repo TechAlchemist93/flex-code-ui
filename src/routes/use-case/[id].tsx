@@ -5,6 +5,7 @@ import { createQuery } from "@tanstack/solid-query";
 import { ActionSelector, FlowChart } from "../../patterns";
 import { ActionDetailsModal } from "../../patterns/ActionDetailsModal";
 import { ModalRef } from "../../patterns/Modal";
+import { ActionDTO, convertToActionDTO, setActionParam } from "../../types/action-dto";
 import "./styles.scss";
 
 const UseCase = () => {
@@ -73,11 +74,17 @@ const UseCase = () => {
     const target = addTarget();
     if (!target) return;
 
+    // Initialize params if it's a Function type
+    const params = action.type === "Function" 
+      ? convertToActionDTO(action as FunctionDetails).params 
+      : undefined;
+    
     const newAction: Action = {
       name: action.name,
       type: action.type,
       source: "API",
       enabled: true,
+      params,
       ...(action.type === "CONDITIONAL" ? { actions: [] } : {})
     };
 
@@ -182,10 +189,23 @@ const UseCase = () => {
 
   const handleParamChange = (path: number[], index: number, paramKey: string, value: string) => {
     updateActionAtPath(path, index, (action) => {
-      if (!action.params) {
-        action.params = {};
-      }
-      action.params[paramKey] = value;
+      // Get the function details
+      const functionDetails = actions.data?.find(a => a.name === action.name) as FunctionDetails | undefined;
+      if (!functionDetails) return;
+
+      // Convert current action to ActionDTO if needed
+      const actionDTO: ActionDTO = {
+        name: action.name,
+        type: action.type,
+        source: action.source,
+        params: action.params || {}
+      };
+
+      // Update the param value with validation
+      const { action: updatedAction } = setActionParam(actionDTO, functionDetails, paramKey, value);
+      
+      // Update the action with the new params
+      action.params = updatedAction.params;
     });
   };
 
@@ -219,6 +239,7 @@ const UseCase = () => {
             <FlowChart 
               actions={localActions()} 
               selectedAction={selectedAction()}
+              availableActions={actions.data}
               onActionSelect={(name) => {
                 setSelectedAction(name);
                 detailsModalRef.open();
